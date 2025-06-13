@@ -1190,8 +1190,9 @@ lemma polys_changes (P Qq : ℤ[X]) (hdeg : P.degree ≥ 2) (d : ℕ) (ad c1 : �
   exact hqqdeg
   exact htry1
 
+
 /-- `Rzero_imp_false` proves that the case when a polynomial R, defined in the proof, is
-identically zero leads to contradiction-/
+--identically zero leads to contradiction-/
 lemma Rzero_imp_false (P : ℤ[X]) (n d : ℕ) (x ad c1 : ℤ) (hdeg : P.degree ≥ 2) (hd : d = P.natDegree)
   (had : ad = P.coeff d) (hdne0 : d ≠ 0) (hadne0 : ad ≠ 0) (hc1 : c1 = d ^ d * ad ^ (d - 1))
   (hii : x ^ d = c1 * n.factorial) (hassume2 : n ≥ 2) (hb : n > 2 * c1) : False := by

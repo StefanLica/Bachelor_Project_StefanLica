@@ -898,7 +898,7 @@ lemma abc_q : abc → (∀ Q : ℝ, Q > 1 → (∃ (N : ℕ) , ∀ (a b c : ℕ)
 
 
 /--A proof for the existence of a maximum quality, 'Qmax', assuming `weak_abc`.-/
-lemma abc_Qmax : weak_abc → (∃ (Qmax : ℝ), (Qmax > 1) ∧ ∀ (a b c : ℕ) , a ≠ 0 → b ≠ 0 → a + b = c → Nat.Coprime a b → quality a b c < Qmax) := by
+lemma abc_Qmax : weak_abc → (∃ (Qmax : ℝ), (Qmax > 1) ∧ ∀ (a b c : ℕ) , a ≠ 0 → b ≠ 0 → a + b = c → Nat.Coprime a b → quality a b c ≤ Qmax) := by
 
   unfold weak_abc
   intro wabc
@@ -929,18 +929,18 @@ lemma abc_Qmax : weak_abc → (∃ (Qmax : ℝ), (Qmax > 1) ∧ ∀ (a b c : ℕ
     have hff : 1 * 1 * 2 ≤ a * b * c := by exact mul_le_mul_three an0 bn0 h2sum
     simp at hff
     exact hff
-  rw [mul_inv_lt_iff₀ hpos]
+  rw [mul_inv_le_iff₀ hpos]
   rw [←Real.log_rpow]
   swap
   rify at hradpos
   exact hradpos
-  refine Real.log_lt_log (Nat.cast_pos'.mpr hcpos) ?_
+  refine Real.log_le_log (Nat.cast_pos'.mpr hcpos) ?_
   have hf : (rad (a * b * c) : ℝ) ^ s < (rad (a * b * c)) ^ (1 + s) := by
     rw [Real.rpow_lt_rpow_left_iff]
     simp
     refine (log_pos_iff (Nat.cast_nonneg' (rad (a * b * c)))).mp hpos
   have ht1 := lt_trans wabc hf
-  refine lt_of_le_of_lt ?_ ht1
+  refine le_of_lt (lt_of_le_of_lt ?_ ht1)
   refine le_mul_of_one_le_left ?_ ?_
   simp
   refine one_le_mul_of_one_le_of_one_le ?_ ?_

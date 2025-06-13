@@ -267,7 +267,7 @@ theorem abc_Z_imp_poly_eq_const_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥
 --#print axioms radical
 
 
-lemma Archimedes : ∀ ε : ℝ, ε > 0 → ∃ n : ℕ, 1 / n  < ε := by
+lemma Archimedes : ∀ ε : ℝ, ε > 0 → ∃ n : ℕ, 1 / n < ε := by
   intro e he
   use Nat.ceil (1 / e) + 1
   refine (one_div_lt he ?_).mp ?_

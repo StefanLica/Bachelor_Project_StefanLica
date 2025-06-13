@@ -18,7 +18,7 @@ version of the abc-conjecture, `weak_abc`.
 
 
 /-- The original Brocard-Ramanujan problem, proven assuming a weaker form of the abc-conjecture : `weak_abc` -/
-theorem weak_abc_imp_Brocard : weak_abc → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.factorial + 1 = y^2) → (x ≤ N) ∧ (y ≤ N)) := by
+theorem weak_abc_imp_Brocard : weak_abc → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.factorial + 1 = y^2) → x ≤ N ∧ y ≤ N) := by
 
   unfold weak_abc
   intro wabc
@@ -41,74 +41,7 @@ theorem weak_abc_imp_Brocard : weak_abc → (∃ (N : ℕ) , ∀ (x y : ℕ) , (
   let M := max n n'
   use M
   intro x y hi
-  have hx : 4 ≤ x := by
-    by_contra hc
-    push_neg at hc
-    by_cases h0 : x = 0
-    rw [h0] at hi
-    have h0fac : Nat.factorial 0 = 1 := by aesop
-    rw [h0fac] at hi
-    simp at hi
-    have hyle2 : y < 2 := by nlinarith
-    cases hyle2 with
-    | refl => simp at hi
-    | step hca =>
-      simp at hca
-      rw [hca] at hi
-      simp at hi
-    push_neg at h0
-    by_cases h1 : x = 1
-    rw [h1] at hi
-    have h1fac : Nat.factorial 1 = 1 := by aesop
-    rw [h1fac] at hi
-    simp at hi
-    have hyle2 : y < 2 := by nlinarith
-    cases hyle2 with
-    | refl => simp at hi
-    | step hca =>
-      simp at hca
-      rw [hca] at hi
-      simp at hi
-    push_neg at h1
-    by_cases h2 : x = 2
-    rw [h2] at hi
-    have h2fac : Nat.factorial 2 = 2 := by aesop
-    rw [h2fac] at hi
-    simp at hi
-    have hyle2 : y < 3 := by nlinarith
-    cases hyle2 with
-    | refl => simp at hi
-    | step hca =>
-      simp at hca
-      rw [← Nat.pow_le_pow_iff_left h2ne0] at hca
-      rw [← hi] at hca
-      simp at hca
-    push_neg at h2
-    have h3 : x = 3 := by
-      refine Nat.le_antisymm ?_ ?_
-      exact Nat.le_of_lt_succ hc
-      have hx2 : x ≥ 2 := by refine (Nat.two_le_iff x).mpr (And.intro h0 h1)
-      change x ≥ 3
-      refine Nat.succ_le_of_lt ?_
-      exact Nat.two_lt_of_ne h0 h1 h2
-    clear hc h0 h1 h2
-    rw [h3] at hi
-    have h3fac : Nat.factorial 3 = 6 := by aesop
-    rw [h3fac] at hi
-    simp at hi
-    have hh2 : 3 ^ 2 = 9 := by norm_num
-    have h3y : y < 3 := by
-      rw [← Nat.pow_lt_pow_iff_left h2ne0]
-      rw [hh2]
-      rw [← hi]
-      linarith
-    cases h3y with
-    | refl => simp at hi
-    | step h3y' =>
-      simp at h3y'
-      have h2yy : y ^ 2 ≤ 1 ^ 2 := by exact Nat.pow_le_pow_left h3y' 2
-      rw [← hi] at h2yy
-      contradiction
+  have hx : 4 ≤ x := by exact fac_sq_imp_ge_4 x y hi
   have hx' : x ≠ 0 := by exact Nat.ne_zero_of_lt hx
   have h_y_odd : Odd y := by exact y_odd x y hx hi
   have h_rw_y : ∃ (k : ℕ), y = 2 * k + 1 := by exact h_y_odd

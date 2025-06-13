@@ -200,6 +200,75 @@ lemma gcd_xy (x y : ℕ) (ha : x.factorial + 1 = y^2) : Nat.gcd x.factorial (y^2
   apply Nat.coprime_self_add_right.2
   exact Nat.gcd_one_right x.factorial
 
+lemma fac_sq_imp_ge_4 (x y : ℕ) : x.factorial + 1 = y^2 → x ≥ 4 := by
+  intro hi
+  by_contra hc
+  push_neg at hc
+  by_cases h0 : x = 0
+  rw [h0] at hi
+  have h0fac : Nat.factorial 0 = 1 := by decide
+  rw [h0fac] at hi
+  simp at hi
+  have hyle2 : y < 2 := by nlinarith
+  cases hyle2 with
+  | refl => simp at hi
+  | step hca =>
+    simp at hca
+    rw [hca] at hi
+    simp at hi
+  push_neg at h0
+  by_cases h1 : x = 1
+  rw [h1] at hi
+  have h1fac : Nat.factorial 1 = 1 := by aesop
+  rw [h1fac] at hi
+  simp at hi
+  have hyle2 : y < 2 := by nlinarith
+  cases hyle2 with
+  | refl => simp at hi
+  | step hca =>
+    simp at hca
+    rw [hca] at hi
+    simp at hi
+  push_neg at h1
+  by_cases h2 : x = 2
+  rw [h2] at hi
+  have h2fac : Nat.factorial 2 = 2 := by aesop
+  rw [h2fac] at hi
+  simp at hi
+  have hyle2 : y < 3 := by nlinarith
+  cases hyle2 with
+  | refl => simp at hi
+  | step hca =>
+    simp at hca
+    rw [← Nat.pow_le_pow_iff_left (Nat.pos_iff_ne_zero.1 (Nat.zero_lt_succ 1))] at hca
+    rw [← hi] at hca
+    simp at hca
+  push_neg at h2
+  have h3 : x = 3 := by
+    refine Nat.le_antisymm ?_ ?_
+    exact Nat.le_of_lt_succ hc
+    have hx2 : x ≥ 2 := by refine (Nat.two_le_iff x).mpr (And.intro h0 h1)
+    change x ≥ 3
+    refine Nat.succ_le_of_lt ?_
+    exact Nat.two_lt_of_ne h0 h1 h2
+  clear hc h0 h1 h2
+  rw [h3] at hi
+  have h3fac : Nat.factorial 3 = 6 := by aesop
+  rw [h3fac] at hi
+  simp at hi
+  have hh2 : 3 ^ 2 = 9 := by norm_num
+  have h3y : y < 3 := by
+    rw [← Nat.pow_lt_pow_iff_left (Nat.pos_iff_ne_zero.1 (Nat.zero_lt_succ 1))]
+    rw [hh2]
+    rw [← hi]
+    linarith
+  cases h3y with
+  | refl => simp at hi
+  | step h3y' =>
+    simp at h3y'
+    have h2yy : y ^ 2 ≤ 1 ^ 2 := by exact Nat.pow_le_pow_left h3y' 2
+    rw [← hi] at h2yy
+    contradiction
 
 lemma rad_eq_2_pow_2 (x p : ℕ) (hx : x ≠ 0) (hp : Nat.Prime p) : p = rad x ↔ ∃ n : ℕ, x = p ^ n ∧ n ≠ 0 := by
   constructor
