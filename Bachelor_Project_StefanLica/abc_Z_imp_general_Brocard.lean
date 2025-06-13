@@ -103,7 +103,7 @@ lemma h15_asymp (Q R1 : ℤ[X]) (d j : ℕ) (hd2 : d ≥ 2) (hdeg : R1.degree �
     refine (pow_le_pow_iff_right₀ ?_).mpr hr1de
     unfold C4 at hzc4
     simp at hzc4
-    exact Int.lt_trans (Int.lt_add_of_pos_left 1 (Int.ofNat_pos.mpr nrgt)) hzc4
+    exact Int.lt_trans (Int.lt_add_of_pos_left 1 (Int.natCast_pos.mpr nrgt)) hzc4
   rify at hl2r1 hf
   simp
   exact lt_of_lt_of_le hl2r1 hf
@@ -603,7 +603,7 @@ lemma hrj_hrjc (R Q : ℤ[X]) (d j : ℕ) (SR : Finset ℕ) (HSR : SR = R.suppor
         push_neg at hji ⊢
         exact Finset.min'_le SR i hji
       simp only [HSR] at hisr
-      exact Polynomial.not_mem_support_iff.1 hisr
+      exact Polynomial.notMem_support_iff.1 hisr
     rw [hjtail] at hr
     simp at hr
     simp
@@ -1392,7 +1392,7 @@ lemma eq25 (Q : ℤ[X]) (d j : ℕ) (c1 : ℤ) (hdne0 : d ≠ 0) (C6 : ℝ → �
     exact hdgt0
     have hj00 : 0 ≤ j := by exact Nat.zero_le j
     rify at hj00
-    have hj01 : (j:ℝ) > -1 := by exact gt_of_ge_of_gt hj00 (by linarith)
+    have hj01 : (j:ℝ) > -1 := by exact lt_of_le_of_lt' hj00 (by linarith)
     exact neg_lt_iff_pos_add'.mp hj01
   rify at hzabs0
   have h2 : (|z| : ℝ) ^ ((1 : ℝ) / 2) < (C6 e) * 4 ^ (↑n * (1 + e)) := by exact gt_trans h h1
@@ -1421,7 +1421,6 @@ lemma eq25 (Q : ℤ[X]) (d j : ℕ) (c1 : ℤ) (hdne0 : d ≠ 0) (C6 : ℝ → �
   have hr3 : ↑d * log c6 * 2 = 2 * ↑d * log c6 := by ring_nf
   rw [hr3] at h2
   rw [add_comm] at h2
-
   have h3 : (2 * ↑d + 1) * log 4 * ↑n + 2 * ↑d * log c6 ≤ (2 * ↑d + 1) * log 4 * ↑n + (2 * ↑d * |log c6| + 1) := by
     simp
     have hh1 : 2 * ↑d * log c6 ≤ 2 * ↑d * |log c6| := by
@@ -1432,9 +1431,7 @@ lemma eq25 (Q : ℤ[X]) (d j : ℕ) (c1 : ℤ) (hdne0 : d ≠ 0) (C6 : ℝ → �
     have hh2 : 2 * ↑d * log c6 = 2 * ↑d * log c6 + 0 := by simp
     rw [hh2]
     refine add_le_add hh1 (by linarith)
-
-
-  have h4 : ↑d * log |↑z| < (2 * ↑d + 1) * log 4 * ↑n + (2 * ↑d * |log c6| + 1) := by exact gt_of_ge_of_gt h3 h2
+  have h4 : ↑d * log |↑z| < (2 * ↑d + 1) * log 4 * ↑n + (2 * ↑d * |log c6| + 1) := by exact lt_of_le_of_lt' h3 h2
   exact h4
 
 
@@ -1497,7 +1494,7 @@ lemma ygtM (d : ℕ) (x ad adm : ℤ) (hd : d ≠ 0) (had : ad ≠ 0) (M : ℝ) 
     simp only [Int.cast_abs, Int.cast_add, Int.cast_mul, Int.cast_natCast]
     rw [←hww] at ht2
     conv_lhs at ht2 => rw [←hw]
-    exact gt_of_ge_of_gt ht1 ht2
+    exact lt_of_le_of_lt' ht1 ht2
   have hf : M = ↑|ad * ↑d| * w - ↑|adm| := by
     simp only [Int.cast_abs, Int.cast_mul, Int.cast_natCast]
     rw [Eq.symm (b := M)]
@@ -1609,7 +1606,7 @@ lemma rad_lt22 (P Q R R1 : ℤ[X]) (d j C3 C4 : ℕ) (ad c1 : ℤ) (D : ℤ → 
         exact Int.gcd_dvd_right _ _
       have hexact : |R1.eval z| / (D z) = (R1.eval z / (D z)).natAbs := by
         simp
-        refine abs_div_eq_div (R1.eval z) (D z) (Int.ofNat_pos.mpr hDgt0) hqdvd
+        refine abs_div_eq_div (R1.eval z) (D z) (Int.natCast_pos.mpr hDgt0) hqdvd
       rw [hexact]
       simp
       zify at hi1
@@ -1902,7 +1899,7 @@ lemma forabc22 (Q R1 : ℤ[X]) (d j C3 C4 : ℕ) (hd2 : d ≥ 2) (hdj : j ≤ d 
   have habs :  |z ^ (d - j) / (D z : ℤ)| = |z| ^ (d - j) / (D z : ℤ) := by
     have habspow : |z| ^ (d - j) = |z ^ (d - j)| := by exact pow_abs z (d - j)
     rw [habspow]
-    exact (abs_div_eq_div (z ^ (d - j)) (D z : ℤ) (Int.ofNat_pos.mpr hDgt0) ((D_gcd_poly R1 d j (D z) z (congrFun hd z)).1)).symm
+    exact (abs_div_eq_div (z ^ (d - j)) (D z : ℤ) (Int.natCast_pos.mpr hDgt0) ((D_gcd_poly R1 d j (D z) z (congrFun hd z)).1)).symm
   rw [habs] at habc'
   rw [Int.cast_div hddjdvd] at habc' ⊢
   swap
@@ -2075,7 +2072,7 @@ lemma abcrw (Q R1 : ℤ[X]) (d j C4 : ℕ) (hjd2 : j ≤ d - 2) (hd2 : d ≥ 2) 
       exact le_of_lt he
     have h4 : b1 < (C6 e) * up := by
       rw [h2] at h
-      exact gt_of_ge_of_gt h3 h
+      exact lt_of_le_of_lt' h3 h
     unfold up at h4
     rw [←mul_assoc] at h4
     exact h4

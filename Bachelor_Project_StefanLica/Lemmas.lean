@@ -23,9 +23,6 @@ open Real
 This file consists of most of the 'basic' lemmas used for proving the theorems.
 None of the lemmas proven in this file depend on the abc-conjecture.
 The radical of a natural number, `rad`, is defined as the product of prime factors.
-
-## Main statements
-
 -/
 
 
@@ -200,6 +197,7 @@ lemma gcd_xy (x y : ℕ) (ha : x.factorial + 1 = y^2) : Nat.gcd x.factorial (y^2
   apply Nat.coprime_self_add_right.2
   exact Nat.gcd_one_right x.factorial
 
+
 lemma fac_sq_imp_ge_4 (x y : ℕ) : x.factorial + 1 = y^2 → x ≥ 4 := by
   intro hi
   by_contra hc
@@ -269,6 +267,7 @@ lemma fac_sq_imp_ge_4 (x y : ℕ) : x.factorial + 1 = y^2 → x ≥ 4 := by
     have h2yy : y ^ 2 ≤ 1 ^ 2 := by exact Nat.pow_le_pow_left h3y' 2
     rw [← hi] at h2yy
     contradiction
+
 
 lemma rad_eq_2_pow_2 (x p : ℕ) (hx : x ≠ 0) (hp : Nat.Prime p) : p = rad x ↔ ∃ n : ℕ, x = p ^ n ∧ n ≠ 0 := by
   constructor
@@ -957,7 +956,7 @@ lemma fac_as_prod (x : ℕ) (hx : x ≥ 2) : x.factorial = ∏ i ∈ {i ∈ Fins
       have hhelp : Finset.range (k + 2) = insert (k + 1) (Finset.range (k + 1)) := by exact Finset.range_add_one
       have hhhelp : (Finset.filter (fun i ↦ i ≠ 0)) (Finset.range (k + 2)) = insert (k + 1) ((Finset.filter (fun i ↦ i ≠ 0)) (Finset.range (k + 1))) := by aesop
       have hh' : (Finset.filter (fun i ↦ i ≠ 0)) (Finset.range (k + 1)) = ((Finset.filter (fun i ↦ i ≠ 0)) (Finset.range (k + 2))).erase (k + 1) := by aesop
-      have hknb' : k + 1 ∉ Finset.range (k + 1) := by exact Finset.not_mem_range_self
+      have hknb' : k + 1 ∉ Finset.range (k + 1) := by exact Finset.notMem_range_self
       have hknb : k + 1 ∉ (Finset.filter (fun i ↦ i ≠ 0)) (Finset.range (k + 1)) := by aesop
       have hprodstep : ∏ i ∈ Finset.filter (fun i ↦ i ≠ 0) (Finset.range (k + 1 + 1)), id i = (id (k + 1)) * (∏ i ∈ Finset.filter (fun i ↦ i ≠ 0) (Finset.range (k + 1)), id i) := by
         rw [← Finset.prod_insert hknb]

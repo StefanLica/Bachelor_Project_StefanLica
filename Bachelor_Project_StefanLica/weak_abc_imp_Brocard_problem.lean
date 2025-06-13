@@ -54,7 +54,7 @@ theorem weak_abc_imp_Brocard : weak_abc → (∃ (N : ℕ) , ∀ (x y : ℕ) , (
     simp at hi
     absurd hi
     exact Nat.factorial_ne_zero x
-  specialize ht2 k
+  specialize ht2 k hkn
   simp at ht2
   have h_rw : x.factorial = 4 * k * (k + 1) := by
     calc
@@ -83,7 +83,7 @@ theorem weak_abc_imp_Brocard : weak_abc → (∃ (N : ℕ) , ∀ (x y : ℕ) , (
         ((x:ℝ) ^ x) * (1 / ((rexp 1) ^ x))
         < x.factorial / 4 := by exact hf_helper
         _= k * (k + 1) := by exact h_rw''
-        _< (rad (k * (k + 1))) ^ t := by exact ht2 hkn
+        _< (rad (k * (k + 1))) ^ t := by exact ht2
         _= (rad (x.factorial / 4)) ^ t := by exact congrFun (congrArg HPow.hPow (congrArg Nat.cast hrad_helper)) t -- ????
         _= (primorial x) ^ t := by rw [rad_eq_4_primorial x hx] --congrFun (congrArg HPow.hPow (congrArg (Nat.cast (rad_eq_4_primorial x hx)))) t
     have h_primorial_ge_0 : 0 ≤ primorial x := by exact Nat.zero_le (primorial x)

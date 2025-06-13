@@ -116,7 +116,7 @@ lemma abc_imp_weak_abc : abc → weak_abc := by
             (2 : ℝ) ^ (1.7 : ℝ)
             ≥ (2 : ℝ) ^ (1 : ℝ) := by exact hj3
             _= (2 : ℝ) := by exact rpow_one 2
-        have hcase'neg : ¬ (2 ^ (1.7 : ℝ) ≥ (2 : ℝ)) := by exact not_le_of_lt hgt
+        have hcase'neg : ¬ (2 ^ (1.7 : ℝ) ≥ (2 : ℝ)) := by exact not_le_of_gt hgt
         contradiction
       have hradge3 : rad (a1 * b1 * c1) ≥ 3 := by exact rad_abc_ge_3 a1 b1 c1 ha1ge1 hb1ge1 ha1b1or hsum hcop
       have hradge3' : 3 ≤ rad (a1 * b1 * c1) := by exact hradge3
@@ -136,7 +136,7 @@ lemma abc_imp_weak_abc : abc → weak_abc := by
       rw [← Real.rpow_natCast]
       rw [ge_iff_le, Real.rpow_le_rpow_left_iff]
       exact hh1
-      exact gt_of_ge_of_gt h_sorry h1lte
+      exact lt_of_le_of_lt' h_sorry h1lte
     exact le_trans hh3 hh2'
   let M := max (Nat.ceil (log B) : ℝ) 1.9
   use 3 * M
@@ -205,7 +205,7 @@ lemma abc_imp_weak_abc : abc → weak_abc := by
           (2 : ℝ) ^ (1.7 : ℝ)
           ≥ (2 : ℝ) ^ (1 : ℝ) := by exact hj3
           _= (2 : ℝ) := by exact rpow_one 2
-      have hcase'neg : ¬ (2 ^ (1.7 : ℝ) ≥ (2 : ℝ)) := by exact not_le_of_lt hcase
+      have hcase'neg : ¬ (2 ^ (1.7 : ℝ) ≥ (2 : ℝ)) := by exact not_le_of_gt hcase
       contradiction
     have hhge2 : 2 ≤ h := by
       conv_lhs => change 1 + 1
@@ -223,7 +223,7 @@ lemma abc_imp_weak_abc : abc → weak_abc := by
         _= g * 2 := by ring
         _≥ 1 * 2 := by exact Nat.mul_le_mul_right 2 hg
         _= 2 := by ring
-    have h_gt_sorry : rexp 1 < (rad (f * g * h) : ℝ) := by exact gt_of_ge_of_gt hradge3 h3gte
+    have h_gt_sorry : rexp 1 < (rad (f * g * h) : ℝ) := by exact lt_of_le_of_lt' hradge3 h3gte
     have h_sorry : rexp 1 ≤ rad (f * g * h) := by exact le_of_lt h_gt_sorry
     have hh3 : (rexp 1) ^ log B ≤ (rad (f * g * h) : ℝ) ^ log B := by
       refine (Real.rpow_le_rpow_iff ?_ ?_ ?_).mpr ?_
@@ -241,7 +241,7 @@ lemma abc_imp_weak_abc : abc → weak_abc := by
     choose hfb hgb hhb using abc
     rify at hhb
     have hh15 : h < (rexp 1) ^ log B := by exact lt_of_lt_of_eq hhb hh4
-    have hh156 : h < (rad (f * g * h) : ℝ) ^ log B := by exact gt_of_ge_of_gt hh3 hh15
+    have hh156 : h < (rad (f * g * h) : ℝ) ^ log B := by exact lt_of_le_of_lt' hh3 hh15
     have hhf : (rad (f * g * h) : ℝ) ^ log B ≤ (rad (f * g * h) : ℝ) ^ M := by
       refine Real.rpow_le_rpow_of_exponent_le ?_ ?_
       exact Preorder.le_trans 1 (rexp 1) (↑(rad (f * g * h))) h1lee h_sorry
