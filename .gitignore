@@ -1,1 +1,6 @@
 /.lake
+/build/
+/docbuild/.lake/
+/docbuild/build/
+/docbuild/lake-manifest.json
+/lake-manifest.json
