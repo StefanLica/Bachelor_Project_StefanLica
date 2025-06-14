@@ -27,7 +27,7 @@ jobs:
       run: |
         rm -rf docs
         mkdir -p docs
-        cp -r docbuild/build/doc/* docs/
+        cp -r docbuild/.lake/build/doc/* docs/
 
     - name: ✅ Commit and push updated docs
       run: |
