@@ -11,3 +11,6 @@ path = "../"
 scope = "leanprover"
 name = "doc-gen4"
 rev = "main"
+
+[doc-gen4]
+only = ["Bachelor_Project_StefanLica"]
