@@ -16,8 +16,9 @@ jobs:
     - name: 🧰 Install Lean & Elan
       uses: leanprover/lean-action@v1
 
-    - name: 🛠 Install dependencies
+    - name: 🛠 Install dependencies and build docs
       run: |
+        cd docbuild
         lake update doc-gen4
         lake build Bachelor_Project_StefanLica:docs
 
