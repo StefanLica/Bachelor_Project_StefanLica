@@ -48,10 +48,10 @@ lemma Qc_degree (P Qc : ℤ[X]) (d : ℕ) (c : ℤ) (hcne0 : c ≠ 0) (hdeg : P.
     rw [Polynomial.degree_add_C] at hpd
     rw [hpd] at hsumdeg
     simp at hsumdeg
-    refine gt_of_ge_of_gt hsumdeg ?_
+    refine lt_of_le_of_lt' hsumdeg ?_
     simp
     rw [hd]
-    refine natDegree_pos_iff_degree_pos.mpr (gt_of_ge_of_gt hdeg (by simp))
+    refine natDegree_pos_iff_degree_pos.mpr (lt_of_le_of_lt' hdeg (by simp))
   have hcontrapose := (Polynomial.natDegree_lt_iff_degree_lt (p := p) (n := 2) hp0).2
   have hcon : p.natDegree ≥ 2 → p.degree ≥ ↑2 := by exact fun a ↦ le_imp_le_of_lt_imp_lt hcontrapose a
   refine hcon ?_
@@ -187,8 +187,7 @@ theorem abc_Z_imp_poly_eq_const_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥
     simp
     exact le_natDegree_of_coe_le_degree hdeg
 
-  let N (i : Fin cn) : ℕ := by
-    exact (abc_Z_imp_poly_eq_const_dvd_fac_finite_sol (Q i) (hqd i) c hcne0 abcz).choose
+  let N (i : Fin cn) : ℕ := by exact (abc_Z_imp_poly_eq_const_dvd_fac_finite_sol (Q i) (hqd i) c hcne0 abcz).choose
   have hn : ∀ (i : Fin cn) (n : ℕ) (x : ℤ), c ∣ x → eval x (Q i) = c * ↑n.factorial → n < N i ∧ |x| < N i := fun i ↦ (abc_Z_imp_poly_eq_const_dvd_fac_finite_sol (Q i) (hqd i) c hcne0 abcz).choose_spec
   obtain ⟨j, hj⟩ := Finite.exists_max N
   use N j
@@ -200,48 +199,29 @@ theorem abc_Z_imp_poly_eq_const_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥
     rw [←hmod]
     simp
   set q := x / c
-  refine lt_of_lt_of_le ?_ (hj r)
-  specialize hn r n (x - r) hrdvd
-  choose he hee using hn
-  refine he ?_
-
-  convert hcc using 1
-  simp [Q]
-  congr
-  refine Eq.symm ((fun {b a c} ↦ Int.sub_eq_iff_eq_add.mp) ?_)
-  congr
+  have hr0 : 0 ≤ r := by exact Int.emod_nonneg x hcne0
+  have hr_lt : r < cn := by exact Int.emod_lt x hcne0
   set r' := r.toNat
   have hf5 : r' = r := by
     unfold r'
     simp
     exact Int.emod_nonneg x hcne0
-  rw [←hf5]
-  simp
-  refine Int.emod_eq_of_lt ?_ ?_
-  simp
-  simp
-  unfold cn
-  zify
-  by_cases hc : c > 0
-  · have h1 : |c| = c := by
-      simp
-      exact Int.le_of_lt hc
-    rw [h1]
-    unfold r'
-    simp
-    constructor
-    unfold r
-    exact Int.emod_lt_of_pos x hc
-    exact hc
-  · push_neg at hc
-    have hc' : c < 0 := by exact lt_of_le_of_ne hc hcne0
-    have h1 : |c| = - c := by exact abs_of_nonpos hc
-    rw [h1]
-    unfold r' r
-    simp
-    constructor
-    refine Int.emod_lt_of_neg x hc'
-    exact hc'
+  have hr'cn : r' < cn := by
+    zify
+    rw [hf5]
+    exact hr_lt
+  set rf := Fin.mk r' hr'cn
+  refine lt_of_lt_of_le ?_ (hj rf)
+  specialize hn rf n (x - r) hrdvd
+  choose he hee using hn
+  refine he ?_
+  convert hcc using 1
+  simp [Q]
+  congr
+  refine Eq.symm ((fun {b a c} ↦ Int.sub_eq_iff_eq_add.mp) ?_)
+  congr
+
+
 
 
 
@@ -287,3 +267,6 @@ lemma sum_example (a b c : ℤ) (ha : a ≥ 0) (hb : b ≤ 0) (hc : c ≤ 0) (hs
   have h3 : |c| = -c := by simp only [abs_eq_neg_self.2 hc]
   rw [h1, h2, h3]
   omega
+
+
+--defaultTargets = ["Bachelor_Project_StefanLica"]

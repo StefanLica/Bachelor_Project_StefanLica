@@ -1,7 +1,7 @@
 name = "Bachelor_Project_StefanLica"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["Bachelor_Project_StefanLica"]
+
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -11,5 +11,14 @@ autoImplicit = false
 name = "mathlib"
 scope = "leanprover-community"
 
+[[require]]
+name = "doc-gen4"
+git = "https://github.com/leanprover/doc-gen4"
+rev = "main"
+
 [[lean_lib]]
 name = "Bachelor_Project_StefanLica"
+
+[[tool]]
+name = "doc-gen"
+package = "doc-gen4"
