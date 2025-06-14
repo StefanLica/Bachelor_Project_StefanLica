@@ -2608,7 +2608,7 @@ theorem abc_Z_imp_poly_eq_fac_finite_sol (P : Polynomial ℤ) (hdeg : P.degree �
 
 
 /-- The original Brocard-Ramanujan problem, this time proven using the main result, `abc_Z_imp_poly_eq_fac_finite_sol`-/
-theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.factorial + 1 = y^2) → (x ≤ N) ∧ (y ≤ N)) := by
+theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.factorial + 1 = y^2) → (x < N) ∧ (y < N)) := by
 
   unfold abc_Z
   intro abcz
@@ -2622,7 +2622,7 @@ theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.facto
     apply Eq.symm
     exact Polynomial.degree_quadratic (by simp)
   obtain ⟨M, hpol⟩ := abc_Z_imp_poly_eq_fac_finite_sol P hdeg abcz
-  use M
+  use M + 1
   intro n x hi
   have heq : eval (↑x) P = ↑n.factorial := by
     unfold P
@@ -2634,9 +2634,11 @@ theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.facto
     exact hi
   specialize hpol n x heq
   simp at hpol
+  choose b1 b2 using hpol
   constructor
-  exact le_of_lt hpol.1
-  exact le_of_lt hpol.2
+  exact Nat.lt_add_right 1 b1
+  exact Nat.lt_add_right 1 b2
+
 
 
 --#print axioms main_imp_Brocard
