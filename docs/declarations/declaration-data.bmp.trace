@@ -1,0 +1,23 @@
+{"log":
+ [{"message": "Documentation indexing", "level": "info"},
+  {"message":
+   ".> /Users/stefanlica/Desktop/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4 index --build /Users/stefanlica/Desktop/Bachelor_Project_StefanLica/docbuild/.lake/build",
+   "level": "trace"}],
+ "inputs":
+ [["/Users/stefanlica/Desktop/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+   "3606292402486186840"],
+  ["<nil>", "14590866244655749218"],
+  ["<collection>",
+   [["/Users/stefanlica/Desktop/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/Lemmas.html",
+     "5499097622065282337"],
+    ["/Users/stefanlica/Desktop/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/abc_variants.html",
+     "6482637294602390413"],
+    ["/Users/stefanlica/Desktop/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/weak_abc_imp_Brocard_problem.html",
+     "6022147355271509284"],
+    ["/Users/stefanlica/Desktop/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/abc_Z_imp_general_Brocard.html",
+     "17993200465536507606"],
+    ["/Users/stefanlica/Desktop/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/multiplying_by_constant.html",
+     "17053947218288305492"],
+    ["/Users/stefanlica/Desktop/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica.html",
+     "15511693057200609261"]]]],
+ "depHash": "9710649072233122212"}
