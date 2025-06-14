@@ -22,7 +22,6 @@ theorem weak_abc_imp_Brocard : weak_abc → (∃ (N : ℕ) , ∀ (x y : ℕ) , (
 
   unfold weak_abc
   intro wabc
-
   have h4gt0 : 0 < 4 := by simp
   have h4ge0 : (0:ℝ) ≤ 4 := by simp
   have h2ne0 : 2 ≠ 0 := by norm_num
