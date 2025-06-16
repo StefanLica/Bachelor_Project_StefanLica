@@ -12,12 +12,10 @@ alternative versions of `abc` and `weak_abc`, restated in terms of the "quality"
 
 ## Main statements
 
-
 * `abc`: The main abc-conjuctre.
 * `weak_abc`: The weaker version of `abc`, used for proving the Brocard-Ramanujan problem.
 * `abc_Z`: The integer version of `abc`, used for proving the main result,
 the generalization of the Brocard-Ramanujan problem, `abc_Z_imp_poly_eq_fac_finite_sol`.
-
 -/
 
 

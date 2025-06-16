@@ -6,39 +6,54 @@ open Real
 /-!
 # The abc-conjecture implies finite solutions to the equation P(x) = n!
 
-This file consists of the main result, a proof of the generalized Brocard-Ramanujan
+* This file consists of the main result, a proof of the generalized Brocard-Ramanujan
 problem, conditional on the abc-conjecture: For any polynomial P with integer coefficients
 and of degree at least 2, the quation `P(x) = n!` has finitely many pairs of integer solutions, (x,n).
-It also consists of several lemmas, which are intermediate steps of the main proof, separated
+* It also consists of several lemmas, which are intermediate steps of the main proof, separated
 from it in order to shorten it.
-Moreover, it includes another proof of the original Brocard-Ramanujan problem by specializing
+* Moreover, it includes another proof of the original Brocard-Ramanujan problem by specializing
 the main statement to P(x) = x² - 1.
-
 -/
 
 
-
-section notations_and_general_results_about_P
+section notations_and_helping_lemmas
 variable (P : ℤ[X])
 
+/-!
+* Establishing the necessaery notations used for the proof, depending on the initial polynomial, P.
+-/
 
--- Number definitions
+/--The degree of P.-/
 def d' : ℕ := P.natDegree
 local notation "d" => d' P
+
+/--The leading coefficient of P.-/
 def ad' : ℤ := P.coeff d
 local notation "ad" => ad' P
+
 def c' : ℤ := d ^ d * ad ^ (d - 1)
 local notation "c" => c' P
+
 def b' (i : ℕ) : ℤ := P.coeff i * d ^ (d - i) * ad ^ (d - i - 1)
 local notation "b" => b' P
 
 
--- Polynomial definitions
-noncomputable def Qq' : ℤ[X] := X ^ d + ∑ i in Finset.range d, C (b i) * X ^ i
+/-!
+* Defining the first rescaled polynomials.
+-/
+
+noncomputable def Qq' : ℤ[X] := X ^ d + ∑ i ∈ Finset.range d, C (b i) * X ^ i
 local notation "Qq" => Qq' P
 
 noncomputable def Q' : ℤ[X] := (Qq).comp (X - C (P.coeff (d - 1)))
 local notation "Q" => Q' P
+
+
+/-!
+## Part 1
+* Lemmas used in the first part of the proof, proving general identities between related
+polynomials, transformed by compositions.
+-/
 
 
 lemma hPne0 (hdeg : P.degree ≥ 2) : P.degree ≠ ⊥ := by
@@ -519,11 +534,33 @@ lemma QqQ (x : ℤ) : (Q).eval (ad * d * x + P.coeff (d - 1)) = (Qq).eval (ad * 
 noncomputable def R' : ℤ[X] := ∑ i ∈ Finset.range (d - 1), C ((Q).coeff i) * X ^ i
 local notation "R" => R' P
 
-noncomputable def SR' := (R).support
-local notation "SR" => SR' P
 
 
-
+lemma QR (hdeg : P.degree ≥ 2) : Q = X ^ d + R := by
+  unfold R'
+  have hQ : Q = X ^ (Q).natDegree + ∑ i ∈ Finset.range (Q).natDegree, C ((Q).coeff i) * X ^ i := by exact Monic.as_sum (hQmonic P)
+  have hQ' : ∑ i ∈ Finset.range d, C ((Q).coeff i) * X ^ i = ∑ i ∈ Finset.range (d - 1), C ((Q).coeff i) * X ^ i := by
+    have hfs : Finset.range d = (Finset.range (d - 1)) ∪ {d - 1} := by
+      have homega : d ≥ 2 := hd2 P hdeg
+      have hdr : d = (d - 1) + 1 := by omega
+      conv_lhs =>
+        rw [hdr]
+      rw [Finset.range_add_one]
+      rw [Finset.insert_eq]
+      exact Finset.union_comm {d - 1} (Finset.range (d - 1))
+    rw [hfs]
+    rw [Finset.sum_union (by simp)]
+    have hdm1 : ∑ x ∈ {d - 1}, C ((Q).coeff x) * X ^ x = 0 := by
+      simp
+      exact Q_change_var_cancel_term P hdeg
+    rw [hdm1]
+    simp
+  have hdqd : (Q).natDegree = d := by
+    unfold d'
+    exact hQdegree P hdeg
+  rw [hdqd] at hQ
+  conv_lhs => rw [hQ]
+  rw [hQ']
 
 lemma hqrh (hdeg : P.degree ≥ 2) : ∀ i ∈ Finset.range (d - 1), (Q).coeff i = (R).coeff i := by
   intro i hd1
@@ -557,16 +594,136 @@ lemma hqrh (hdeg : P.degree ≥ 2) : ∀ i ∈ Finset.range (d - 1), (Q).coeff i
   exact Nat.lt_of_lt_pred hd1
 
 
+/-- `Rzero_imp_false` is used for proving that if R zero, there are no solutions to the equation.-/
+lemma Rzero_imp_false (hdeg : P.degree ≥ 2) (n : ℕ) (x : ℤ) (hii : x ^ d = c * n.factorial) (hb : n > 2 * |c|) : False := by
+  have hc1gt0 : c > 0 := by
+    by_cases hdpar : Odd d
+  -- case Odd d :
+    have hadpow : ad ^ (d - 1) > 0 := by
+      have hd1e : Even (d - 1) := by exact Nat.Odd.sub_odd hdpar (by exact Nat.odd_iff.mpr rfl)
+      exact Even.pow_pos hd1e (hadne0 P hdeg)
+    have hddpow : d ^ d > 0 := by exact Nat.pow_self_pos
+    unfold c'
+    zify at hddpow
+    exact Int.mul_pos hddpow hadpow
+  -- case Even d :
+    rw [Nat.not_odd_iff_even] at hdpar
+    have hxvne0 : x ^ d ≠ 0 := by
+      rw [hii]
+      simp
+      constructor
+      exact (hcne0 P hdeg)
+      exact Nat.factorial_ne_zero n
+    have hxv : x ≠ 0 := by exact ne_zero_pow (very_simple d (hd2 P hdeg)) hxvne0
+    have hxvgt0 : x ^ d > 0 := by exact Even.pow_pos hdpar hxv
+    rw [hii] at hxvgt0
+    have hfac0 : n.factorial > 0 := by exact Nat.factorial_pos n
+    zify at hfac0
+    exact (pos_iff_pos_of_mul_pos hxvgt0).2 hfac0
+  have hcom : n > 2 * c := by
+    have hinter : 2 * |c| ≥ 2 * c := by
+      simp
+      exact le_abs_self c
+    exact lt_of_le_of_lt hinter hb
+  have hassume2 : n ≥ 2 := by
+    have hc12 : 2 * c ≥ 2 := by exact (le_mul_iff_one_le_right (by simp)).mpr hc1gt0
+    zify
+    have hf := lt_of_le_of_lt hc12 hcom
+    exact Int.le_of_lt hf
+  have hprime : ∃ p : ℕ, Nat.Prime p ∧ n/2 < p ∧ p ≤ n := by
+    have hnb : n / 2 ≠ 0 := by
+      simp
+      exact hassume2
+    have hph : ∃ p : ℕ, Nat.Prime p ∧ n/2 < p ∧ p ≤ 2 * (n/2) := by exact Nat.bertrand (n/2) hnb
+    obtain ⟨p, hi⟩ := hph
+    let hchange := hi.2.2
+    have hch : 2 * (n/2) ≤ n := by exact Nat.mul_div_le n 2
+    have htrans : p ≤ n := by exact Nat.le_trans hchange hch
+    let hi1 := hi.1
+    let hi2 := hi.2.1
+    use p
+  obtain ⟨p, hp⟩ := hprime
+  let hp1 := hp.1
+  let hp2 := hp.2.1
+  have h2' : n < 2 * p := by omega
+  have hpdiv : p ∣ n.factorial := by
+    refine Nat.dvd_factorial ?_ ?_
+    exact Nat.zero_lt_of_lt hp2
+    exact hp.2.2
+  have h3' : ¬ (2 * p ∣ n) := by
+    by_contra h
+    have hc : 2 * p ≤ n := by exact Nat.le_of_dvd (by exact Nat.zero_lt_of_ne_zero (by exact Nat.ne_zero_of_lt hassume2)) h
+    rw [← Nat.not_lt] at hc
+    contradiction
+  have h5' : (n.factorial).factorization p = 1 := by exact prime_fact_1_if_lt n p hassume2 hp h2'
+  zify at hp2
+  have hps : c < p := by
+    refine (mul_lt_mul_left (a := 2) (by linarith)).1 ?_
+    zify at h2'
+    exact Int.lt_trans hcom h2'
+  have h8 : ¬ ((p:ℤ) ∣ c) := by
+    by_contra hi
+    have hc1' : p ≤ c := by exact Int.le_of_dvd hc1gt0 hi
+    have hcontradi : ¬ (p > c) := by exact Int.not_lt.mpr hc1'
+    contradiction
+  have h9' : ∀ k : ℕ, k ≥ 2 → ¬ (p ^ k ∣ n.factorial):= by
+    by_contra hhc
+    push_neg at hhc
+    obtain ⟨k, hk, hkdiv⟩ := hhc
+    have hcontra : k ≤ (n.factorial).factorization p := by exact (Nat.Prime.pow_dvd_iff_le_factorization hp1 (by exact Nat.factorial_ne_zero n)).1 hkdiv
+    rw [h5'] at hcontra
+    have hk'' : k > 1 := by exact hk
+    have hnk : ¬ (k ≤ 1) := by exact Nat.not_le_of_lt hk
+    absurd hnk
+    exact hcontra
+  specialize h9' d (hd2 P hdeg)
+  have hpdiv2 : (p:ℤ) ∣ c * n.factorial := by
+    zify at hpdiv
+    exact dvd_mul_of_dvd_right hpdiv c
+  have h3 : (p:ℤ) ∣ x ^ d := by
+    rw [hii]
+    exact hpdiv2
+  have h4 : (p:ℤ) ∣ x := by exact Int.Prime.dvd_pow' hp1 h3
+  have h5 : ∃ k : ℤ, x = k * (p:ℤ) := by exact exists_eq_mul_left_of_dvd h4
+  obtain ⟨k, h5⟩ := h5
+  have h6 : x ^ d = k ^ d * p ^ d := by
+    rw [h5]
+    ring
+  have h7 : (p:ℤ) ^ d ∣ c * n.factorial := by
+    rw [h6] at hii
+    rw [←hii]
+    exact Int.dvd_mul_left (k ^ d) (↑p ^ d)
+  have h9 : ¬ ((p : ℤ) ^ d ∣ c * n.factorial) := by
+    by_contra hcc
+    have hpint : Prime (p : ℤ) := by exact Nat.prime_iff_prime_int.mp hp1
+    have h_c : (p : ℤ) ^ d ∣ n.factorial := by exact Prime.pow_dvd_of_dvd_mul_left hpint d h8 hcc
+    zify at h9'
+    absurd h_c
+    exact h9'
+  absurd h9
+  exact h7
+
+
+
+/-!
+## Part 2
+* Lemmas treating the case when R ≠ 0
+-/
+
+/-- SR is defined to be the support of R, that is, SR = {i ∈ ℕ : the coefficient of X ^ i of R is non-zero}.-/
+noncomputable def SR' := (R).support
+local notation "SR" => SR' P
+
+
 lemma hsrn (hr : R ≠ 0) : (SR).Nonempty := by
   unfold SR'
   simp
   exact hr
 
-
 lemma hSRmin (hr : R ≠ 0) : (SR).min' (hsrn P hr) ∈ SR := by exact Finset.min'_mem SR (hsrn P hr)
 
 
-
+/-- j is the minimum of SR and it requires a proof that SR is non-empty.-/
 noncomputable def j' (hr : R ≠ 0) := (SR).min' (hsrn P hr)
 local notation "j" => j' P
 
@@ -595,7 +752,6 @@ lemma hjd2 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : (j hr) ≤ d - 2 := by
   choose h1 h2 using hsrmin
   have hdge2 := hd2 P hdeg
   omega
-
 
 lemma hrj (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : R = ∑ i ∈ (Finset.range (d - 1) \ Finset.range (j hr)), C ((Q).coeff i) * X ^ i := by
   have hrange : Finset.range (d - 1) = (Finset.range (d - 1) \ Finset.range (j hr)) ∪ Finset.range (j hr) := by
@@ -651,36 +807,10 @@ lemma hrjc (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : R = X ^ (j hr) * ∑ i ∈ (
   rw [hhelp]
 
 
-lemma QR (hdeg : P.degree ≥ 2) : Q = X ^ d + R := by
-  unfold R'
-  have hQ : Q = X ^ (Q).natDegree + ∑ i ∈ Finset.range (Q).natDegree, C ((Q).coeff i) * X ^ i := by exact Monic.as_sum (hQmonic P)
-  have hQ' : ∑ i ∈ Finset.range d, C ((Q).coeff i) * X ^ i = ∑ i ∈ Finset.range (d - 1), C ((Q).coeff i) * X ^ i := by
-    have hfs : Finset.range d = (Finset.range (d - 1)) ∪ {d - 1} := by
-      have homega : d ≥ 2 := hd2 P hdeg
-      have hdr : d = (d - 1) + 1 := by omega
-      conv_lhs =>
-        rw [hdr]
-      rw [Finset.range_add_one]
-      rw [Finset.insert_eq]
-      exact Finset.union_comm {d - 1} (Finset.range (d - 1))
-    rw [hfs]
-    rw [Finset.sum_union (by simp)]
-    have hdm1 : ∑ x ∈ {d - 1}, C ((Q).coeff x) * X ^ x = 0 := by
-      simp
-      exact Q_change_var_cancel_term P hdeg
-    rw [hdm1]
-    simp
-  have hdqd : (Q).natDegree = d := by
-    unfold d'
-    exact hQdegree P hdeg
-  rw [hdqd] at hQ
-  conv_lhs => rw [hQ]
-  rw [hQ']
 
 
 
-
-
+/-- R1 is the non-zero part of polynomial R.-/
 noncomputable def R1' (hr : R ≠ 0) : ℤ[X] := ∑ i ∈ Finset.range (d - 1) \ Finset.range (j hr), C ((Q).coeff i) * X ^ (i - (j hr))
 local notation "R1" => R1' P
 
@@ -691,8 +821,6 @@ lemma QR1 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : Q = X ^ d + X ^ (j hr) * (R1 
     rw [hrjc P hdeg hr]
   rw [h1] at hq
   exact hq
-
-
 
 lemma R1nebot (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : (R1 hr).degree ≠ ⊥ := by
   simp
@@ -705,8 +833,6 @@ lemma R1nebot (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : (R1 hr).degree ≠ ⊥ :=
   absurd hr
   exact hhrjc
 
-
---/-- Intermediate result applying the polynomial asymptotic lemmas to the main proof-/
 lemma h15_asymp (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : ∃ C4 C3 : ℕ, ∀ z : ℤ, C4 > 1 ∧ C3 > 1 ∧ ((|z| > C4) → |(R1 hr).eval z| < (C3:ℝ) * (|z| ^ (d - (j hr) - 2))) := by
   set NR := R1 hr with HNR
   set dr := NR.natDegree with hdr
@@ -803,7 +929,8 @@ lemma h15_asymp (hdeg : P.degree ≥ 2) (hr : R ≠ 0) : ∃ C4 C3 : ℕ, ∀ z 
   exact lt_of_lt_of_le hl2r1 hf
 
 
-
+/-- D is the gcd of z ^ (d - j) and R1(z). We divide the equation z ^ (d - j) + R1(z) = cn! / z ^ j,
+to obtain the 2 co-prime terms, so we can apply `abc_Z`. -/
 noncomputable def D' (hr : R ≠ 0) (x : ℤ) : ℕ := Int.gcd (x ^ (d - (j hr))) ((R1 hr).eval x)
 local notation "D" => D' P
 
@@ -830,120 +957,13 @@ lemma D3 (x : ℤ) (hr : R ≠ 0) : (x ≠ 0 → (D hr x) > 0) := by
   exact hxc
 
 
-
-
-/-- `Rzero_imp_false` proves that the case when the polynomial R, defined in the proof, is
-identically zero leads to contradiction-/
-lemma Rzero_imp_false (hdeg : P.degree ≥ 2) (n : ℕ) (x : ℤ) (hii : x ^ d = c * n.factorial) (hb : n > 2 * |c|) : False := by
-  have hc1gt0 : c > 0 := by
-    by_cases hdpar : Odd d
-  -- case Odd d :
-    have hadpow : ad ^ (d - 1) > 0 := by
-      have hd1e : Even (d - 1) := by exact Nat.Odd.sub_odd hdpar (by exact Nat.odd_iff.mpr rfl)
-      exact Even.pow_pos hd1e (hadne0 P hdeg)
-    have hddpow : d ^ d > 0 := by exact Nat.pow_self_pos
-    unfold c'
-    zify at hddpow
-    exact Int.mul_pos hddpow hadpow
-  -- case Even d :
-    rw [Nat.not_odd_iff_even] at hdpar
-    have hxvne0 : x ^ d ≠ 0 := by
-      rw [hii]
-      simp
-      constructor
-      exact (hcne0 P hdeg)
-      exact Nat.factorial_ne_zero n
-    have hxv : x ≠ 0 := by exact ne_zero_pow (very_simple d (hd2 P hdeg)) hxvne0
-    have hxvgt0 : x ^ d > 0 := by exact Even.pow_pos hdpar hxv
-    rw [hii] at hxvgt0
-    have hfac0 : n.factorial > 0 := by exact Nat.factorial_pos n
-    zify at hfac0
-    exact (pos_iff_pos_of_mul_pos hxvgt0).2 hfac0
-  have hcom : n > 2 * c := by
-    have hinter : 2 * |c| ≥ 2 * c := by
-      simp
-      exact le_abs_self c
-    exact lt_of_le_of_lt hinter hb
-  have hassume2 : n ≥ 2 := by
-    have hc12 : 2 * c ≥ 2 := by exact (le_mul_iff_one_le_right (by simp)).mpr hc1gt0
-    zify
-    have hf := lt_of_le_of_lt hc12 hcom
-    exact Int.le_of_lt hf
-
-
-  have hprime : ∃ p : ℕ, Nat.Prime p ∧ n/2 < p ∧ p ≤ n := by
-    have hnb : n / 2 ≠ 0 := by
-      simp
-      exact hassume2
-    have hph : ∃ p : ℕ, Nat.Prime p ∧ n/2 < p ∧ p ≤ 2 * (n/2) := by exact Nat.bertrand (n/2) hnb
-    obtain ⟨p, hi⟩ := hph
-    let hchange := hi.2.2
-    have hch : 2 * (n/2) ≤ n := by exact Nat.mul_div_le n 2
-    have htrans : p ≤ n := by exact Nat.le_trans hchange hch
-    let hi1 := hi.1
-    let hi2 := hi.2.1
-    use p
-  obtain ⟨p, hp⟩ := hprime
-  let hp1 := hp.1
-  let hp2 := hp.2.1
-  have h2' : n < 2 * p := by omega
-  have hpdiv : p ∣ n.factorial := by
-    refine Nat.dvd_factorial ?_ ?_
-    exact Nat.zero_lt_of_lt hp2
-    exact hp.2.2
-  have h3' : ¬ (2 * p ∣ n) := by
-    by_contra h
-    have hc : 2 * p ≤ n := by exact Nat.le_of_dvd (by exact Nat.zero_lt_of_ne_zero (by exact Nat.ne_zero_of_lt hassume2)) h
-    rw [← Nat.not_lt] at hc
-    contradiction
-  have h5' : (n.factorial).factorization p = 1 := by exact fac_fact_helper_h5'' n p hassume2 hp h2'
-  zify at hp2
-  have hps : c < p := by
-    refine (mul_lt_mul_left (a := 2) (by linarith)).1 ?_
-    zify at h2'
-    exact Int.lt_trans hcom h2'
-  have h8 : ¬ ((p:ℤ) ∣ c) := by
-    by_contra hi
-    have hc1' : p ≤ c := by exact Int.le_of_dvd hc1gt0 hi
-    have hcontradi : ¬ (p > c) := by exact Int.not_lt.mpr hc1'
-    contradiction
-  have h9' : ∀ k : ℕ, k ≥ 2 → ¬ (p ^ k ∣ n.factorial):= by
-    by_contra hhc
-    push_neg at hhc
-    obtain ⟨k, hk, hkdiv⟩ := hhc
-    have hcontra : k ≤ (n.factorial).factorization p := by exact (Nat.Prime.pow_dvd_iff_le_factorization hp1 (by exact Nat.factorial_ne_zero n)).1 hkdiv
-    rw [h5'] at hcontra
-    have hk'' : k > 1 := by exact hk
-    have hnk : ¬ (k ≤ 1) := by exact Nat.not_le_of_lt hk
-    absurd hnk
-    exact hcontra
-  specialize h9' d (hd2 P hdeg)
-  have hpdiv2 : (p:ℤ) ∣ c * n.factorial := by
-    zify at hpdiv
-    exact dvd_mul_of_dvd_right hpdiv c
-  have h3 : (p:ℤ) ∣ x ^ d := by
-    rw [hii]
-    exact hpdiv2
-  have h4 : (p:ℤ) ∣ x := by exact Int.Prime.dvd_pow' hp1 h3
-  have h5 : ∃ k : ℤ, x = k * (p:ℤ) := by exact exists_eq_mul_left_of_dvd h4
-  obtain ⟨k, h5⟩ := h5
-  have h6 : x ^ d = k ^ d * p ^ d := by
-    rw [h5]
-    ring
-  have h7 : (p:ℤ) ^ d ∣ c * n.factorial := by
-    rw [h6] at hii
-    rw [←hii]
-    exact Int.dvd_mul_left (k ^ d) (↑p ^ d)
-  have h9 : ¬ ((p : ℤ) ^ d ∣ c * n.factorial) := by
-    by_contra hcc
-    have hpint : Prime (p : ℤ) := by exact Nat.prime_iff_prime_int.mp hp1
-    have h_c : (p : ℤ) ^ d ∣ n.factorial := by exact Prime.pow_dvd_of_dvd_mul_left hpint d h8 hcc
-    zify at h9'
-    absurd h_c
-    exact h9'
-
-  absurd h9
-  exact h7
+/-!
+## Part 3
+* Final lemmas involving algebraic manipulations on the desired abc-triple.
+* Extracting constants from the asymptotic polynomial lemmas and from `abc_Z`, and applying them.
+* `forabc` is the only lemma in this category which directly depends on the abc-conjecture. It is used
+to extract the bounds on set the of solutions using `abc_Z`.
+-/
 
 
 lemma rad_lt22 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C3 C4 : ℕ) (C3gt1 : C3 > 1) (h15 : ∀ z : ℤ , |z| > C4 → |(R1 hr).eval z| < (C3:ℝ) * (|z| ^ (d - (j hr) - 2)))
@@ -1178,8 +1198,6 @@ lemma rad_lt22 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C3 C4 : ℕ) (C3gt1 : C3 
   exact lt_of_le_of_lt hrw h2
 
 
-
-
 lemma eq1015 (C1 C2 C9 C10 : ℝ) (hc1 : C1 > 0) (hc10 : C10 > 0) : ∃ C11 : ℝ, ∀ (n : ℕ) (z : ℤ), C11 > 0 ∧ (|z| > C2 → (eval z Q = c * ↑n.factorial → |↑d * log |↑z| - log ↑n.factorial| < C1 → d * log |z| < C9 * n + C10 → log (n.factorial) < C9 * n + C11)) := by
   let c11 := C1 + C10
   use c11
@@ -1201,7 +1219,6 @@ lemma eq1015 (C1 C2 C9 C10 : ℝ) (hc1 : C1 > 0) (hc10 : C10 > 0) : ∃ C11 : �
   rw [add_comm C1 C10]
   rw [←add_assoc]
   exact htt
-
 
 
 lemma ygtM (hdeg : P.degree ≥ 2) (x adm : ℤ) (M : ℝ) (h : |x| > (M + (|adm| : ℝ)) / (|ad * d| : ℝ)) : |ad * d * x + adm| > M := by
@@ -1256,7 +1273,6 @@ lemma ygtM (hdeg : P.degree ≥ 2) (x adm : ℤ) (M : ℝ) (h : |x| > (M + (|adm
     rw [mul_comm, inv_mul_eq_div]
   rw [← hf] at ht3
   exact ht3
-
 
 
 lemma Qasymp_ineq (hdeg : P.degree ≥ 2) (C2 : ℕ) (hz : ∀ (z : ℤ), |z| > C2 → (|z| ^ d / 2 : ℝ) < |eval z Q| ∧ |eval z Q| < 2 * |z| ^ d)
@@ -1413,7 +1429,6 @@ lemma Qasymp_ineq (hdeg : P.degree ≥ 2) (C2 : ℕ) (hz : ∀ (z : ℤ), |z| > 
   exact hexact
 
 
-
 /-- `forabc` is the lemma used for extracting the bounds on the set of solutions by
 applying `abc_Z` to the desired abc-triple.-/
 lemma forabc (hdeg : P.degree ≥ 2) (hr : R ≠ 0)
@@ -1524,7 +1539,6 @@ lemma forabc (hdeg : P.degree ≥ 2) (hr : R ≠ 0)
   refine lt_of_le_of_lt (by simp) habc
 
 
-
 lemma forabc22 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C3 C4 : ℕ) (C5 : ℝ → ℝ) (C3gt1 : C3 > 1) (hC5gt0 : ∀ e, e > 0 → C5 e > 0)
  : ∀ ε : ℝ, ∃ (C6 : ℝ), ε > 0 → C6 > 0 ∧ (ε ≠ 1 → ∀ (n : ℕ) (z : ℤ), (n > 2 * |c| → z ≠ 0 → eval z Q = c * ↑n.factorial → (|z| > ↑C4 → |z ^ (d - (j hr)) / (D hr z)| < (C5 ε) * rad (Int.natAbs ((z ^ (d - (j hr)) / (D hr z)) * ((R1 hr).eval z / (D hr z)) * ((c * n.factorial) / (z ^ (j hr) * (D hr z))))) ^ (1 + ε) → rad (Int.natAbs ((z ^ (d - (j hr)) / (D hr z)) * ((R1 hr).eval z / (D hr z)) * ((c * n.factorial) / (z ^ (j hr) * (D hr z))))) < |z| * (((C3:ℝ) * |z| ^ (d - (j hr) - 2)) / (D hr z)) * 4 ^ n → ((|z| : ℤ) ^ (d - (j hr)) / ((D hr z) : ℤ) : ℤ) < C6 * (|z| ^ (d - (j hr) - 1) / (D hr z) * 4 ^ n) ^ (1 + ε)))) := by
 
@@ -1611,7 +1625,6 @@ lemma forabc22 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C3 C4 : ℕ) (C5 : ℝ �
     ring_nf
   rw [← hf]
   exact gt_trans h22' habc'
-
 
 
 lemma eq25 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C6 : ℝ → ℝ) (hc6gt0 : ∀ ε > 0, C6 ε > 0)
@@ -1739,8 +1752,6 @@ lemma eq25 (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C6 : ℝ → ℝ) (hc6gt0 : �
     refine add_le_add hh1 (by linarith)
   have h4 : ↑d * log |↑z| < (2 * ↑d + 1) * log 4 * ↑n + (2 * ↑d * |log c6| + 1) := by exact lt_of_le_of_lt' h3 h2
   exact h4
-
-
 
 
 lemma abcrw (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C4 : ℕ) (C6 : ℝ) (hc6gt0 : C6 > 0)
@@ -1911,51 +1922,15 @@ lemma abcrw (hdeg : P.degree ≥ 2) (hr : R ≠ 0) (C4 : ℕ) (C6 : ℝ) (hc6gt0
   exact h1
 
 
-noncomputable def cj (hr : R ≠ 0) := (R).coeff (j hr)
-
-end notations_and_general_results_about_P
-
-
-
-
+end notations_and_helping_lemmas
 
 
 /-!
-* Lemmas used in the first part of the proof, proving general identities between related
-polynomials, transformed by compositions.
-* `Rzero_imp_false` is used for doing a case distinction on wheter or not the polynomial R,
-defined in the main proof, is identically zero. It shows that R being zero leads to a contradiction.
+## Main Theorem
+* `abc_Z_imp_poly_eq_fac_finite_sol` brings all previous lemmas togther and proves the main result.
+* Extracting constants from the asymptotic polynomial lemmas and from `abc_Z`, and applying them.
+* `main_imp_Brocard` is another proof of the original Brocard problem, proven directly using the main result.
 -/
-
-
-
-
-
-
-
-
-
-
-/-!
-* The final intermediate results needed to conclude the main proof. They involve algebraic manipulations
-to the terms of the abc-triple to which the integer abc-conjecture, `abc_Z` will be applied.
-* `forabc` is the only lemma in this category which depends on the abc-conjecture. It is used
-to extract the bounds on set the of solutions using `abc_Z`.
--/
-
-
-
-
-
-
-
-/-!
-* The main theorem: the abc-conjecture implies that there are finitely many integer solutions
-of the equation P(x) = n!, for any polynomial P with integer coefficients and of degree at least 2.
-* `main_imp_Brocard` proposes another proof of the original Brocard-Ramanujan problem,
-by specializing in the general result the polynomial P(x) = x² - 1.
--/
-
 
 
 /-- Main Theorem: If P is a polynomial with integer coefficients and of degree at least 2, then the
@@ -2141,9 +2116,6 @@ theorem abc_Z_imp_poly_eq_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥ 2) :
 
 
 
---#print axioms abc_Z_imp_poly_eq_fac_finite_sol
-
-
 /-- The original Brocard-Ramanujan problem, this time proven using the main result, `abc_Z_imp_poly_eq_fac_finite_sol`-/
 theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.factorial + 1 = y^2) → (x < N) ∧ (y < N)) := by
 
@@ -2175,7 +2147,3 @@ theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.facto
   constructor
   exact Nat.lt_add_right 1 b1
   exact Nat.lt_add_right 1 b2
-
-
-
---#print axioms main_imp_Brocard

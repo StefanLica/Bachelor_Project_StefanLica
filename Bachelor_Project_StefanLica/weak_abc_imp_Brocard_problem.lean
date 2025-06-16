@@ -6,9 +6,8 @@ open Real
 /-!
 # The weak version of the abc-conjecture implies there are finitely many integer solutions to the equation x! + 1 = y².
 
-This file proposes a proof of the Brocard-Ramanujan problem, `weak_abc_imp_Brocard`, conditional on a weak
+* This file proposes a proof of the Brocard-Ramanujan problem, `weak_abc_imp_Brocard`, conditional on a weak
 version of the abc-conjecture, `weak_abc`.
-
 -/
 
 

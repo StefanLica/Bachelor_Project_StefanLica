@@ -6,18 +6,13 @@ open Polynomial
 /-!
 # Multypling by a constant
 
-This file treats a generalization of the main result, namely what happens when the equation is changed to
-P(x) = c * n!, where c is an integer constant. It is proven in this file that this equation can be reduced
-to the main problem by a rescaling argument in the polynomial, followed by a case distinction of wether or not c divides x.
-`Qc_degree` and `Qc_id` are helping lemmas for the rescaled polynomial.
-
-## Main statements
-
-
-* `abc_Z_imp_poly_eq_const_dvd_fac_finite_sol`: Treating the case when c divides x.
-* `abc_Z_imp_poly_eq_const_fac_finite_sol`: The general case, where c does not have to divide x. This case is reduced to the previous one.
-
+* This file treats a generalization of the main result, namely what happens when the equation is changed to
+P(x) = c * n!, where c is an integer constant.
+* It is proven in this file that this equation can be reduced to the main problem by a rescaling argument in
+the polynomial, followed by a case distinction of wether or not c divides x.
+* `Qc_degree` and `Qc_id` are helping lemmas for the rescaled polynomial.
 -/
+
 
 
 
@@ -60,6 +55,7 @@ lemma Qc_degree (P Qc : ℤ[X]) (d : ℕ) (c : ℤ) (hcne0 : c ≠ 0) (hdeg : P.
   refine ge_trans hsumdeg' ?_
   rw [hd]
   exact le_natDegree_of_coe_le_degree hdeg
+
 
 lemma Qc_id {P Q Qc : ℤ[X]} {d n : ℕ} {x c z : ℤ} (hcne0 : c ≠ 0) (hz : x = c * z) (h : eval x P = c * ↑n.factorial) (hd : d = P.natDegree) (hq : Q = P.comp (C c * X)) (hqc : Qc = (∑ i ∈ Finset.range (d + 1) \ {0}, C (c ^ (i - 1)) * (C (P.coeff i)) * X ^ i) + C (P.coeff 0 / c)) : (Q.eval z = c * (Qc.eval z)) := by
 
@@ -125,6 +121,13 @@ lemma Qc_id {P Q Qc : ℤ[X]} {d n : ℕ} {x c z : ℤ} (hcne0 : c ≠ 0) (hz : 
 
 
 
+/-!
+## Main statements
+
+* `abc_Z_imp_poly_eq_const_dvd_fac_finite_sol`: Treating the case when c divides x.
+* `abc_Z_imp_poly_eq_const_fac_finite_sol`: The general case, where c does not have to divide x. This case is reduced to the previous one.
+-/
+
 
 lemma abc_Z_imp_poly_eq_const_dvd_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥ 2) (c : ℤ) (hcne0 : c ≠ 0) :
   abc_Z → (∃ (N : ℕ) , ∀ (n : ℕ) (x : ℤ) , (c ∣ x) → (P.eval x = c * n.factorial) → (n < N) ∧ (|x| < N)) := by
@@ -154,8 +157,6 @@ lemma abc_Z_imp_poly_eq_const_dvd_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree �
   zify
   rw [abs_mul]
   refine Int.mul_lt_mul_of_pos_left hng.2 (abs_pos.mpr hcne0)
-
-
 
 
 /-- Variation of the main result, namely what happens when the equation is changed to
@@ -220,30 +221,3 @@ theorem abc_Z_imp_poly_eq_const_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥
   congr
   refine Eq.symm ((fun {b a c} ↦ Int.sub_eq_iff_eq_add.mp) ?_)
   congr
-
-
-
-
-
-
-
-lemma Archimedes : ∀ ε : ℝ, ε > 0 → ∃ n : ℕ, 1 / n < ε := by
-  intro e he
-  use Nat.ceil (1 / e) + 1
-  refine (one_div_lt he ?_).mp ?_
-  · simp only [one_div, Nat.cast_add, Nat.cast_one]
-    linarith
-  · simp only [one_div, Nat.cast_add, Nat.cast_one]
-    have h1 : e⁻¹ ≤ ⌈e⁻¹⌉₊ := by exact Nat.le_ceil e⁻¹
-    have h2 : ⌈e⁻¹⌉₊ < ⌈e⁻¹⌉₊ + 1 := by linarith
-    rify at h2
-    exact lt_of_le_of_lt h1 h2
-
-
-lemma sum_example (a b c : ℤ) (ha : a ≥ 0) (hb : b ≤ 0) (hc : c ≤ 0) (hsum : a + b = c) : a.toNat + c.natAbs = b.natAbs := by
-  zify
-  have h1 : a.toNat = a := by simp only [Int.ofNat_toNat, sup_eq_left.2 ha]
-  have h2 : |b| = -b := by simp only [abs_eq_neg_self.2 hb]
-  have h3 : |c| = -c := by simp only [abs_eq_neg_self.2 hc]
-  rw [h1, h2, h3]
-  omega

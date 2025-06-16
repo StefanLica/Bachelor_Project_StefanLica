@@ -6,7 +6,6 @@ import Mathlib.Data.Real.Pi.Bounds
 import Mathlib.Tactic.Rify
 import Mathlib.Algebra.Squarefree.Basic
 import Mathlib.NumberTheory.Bertrand
---import Mathlib.Data.Nat.Squarefree
 import Mathlib.NumberTheory.SmoothNumbers
 import Mathlib.Data.Complex.ExponentialBounds
 import Mathlib.RingTheory.Int.Basic
@@ -19,9 +18,9 @@ open Real
 /-!
 # Main lemmas used for proving theorems
 
-This file consists of most of the 'basic' lemmas used for proving the theorems.
-None of the lemmas proven in this file depend on the abc-conjecture.
-The radical of a natural number, `rad`, is defined as the product of prime factors.
+* This file consists of most of the 'basic' lemmas used for proving the theorems.
+* None of the lemmas proven in this file depend on the abc-conjecture.
+* The radical of a natural number, `rad`, is defined as the product of prime factors.
 -/
 
 
@@ -1164,12 +1163,11 @@ lemma rad_mul_le (a b : ℕ) : rad (a * b) ≤ rad a * rad b := by
   exact Nat.Prime.ne_zero he
 
 
-
-lemma fac_fact_helper_h5'' (n p : ℕ) (hassume2 : 2 ≤ n) (hp : Nat.Prime p ∧ n / 2 < p ∧ p ≤ n) (h2' : n < 2 * p) : (n.factorial).factorization p = 1 := by
+lemma prime_fact_1_if_lt (n p : ℕ) (h2 : 2 ≤ n) (hp : Nat.Prime p ∧ n / 2 < p ∧ p ≤ n) (h : n < 2 * p) : (n.factorial).factorization p = 1 := by
 
   let hp1 := hp.1
   let hp2 := hp.2.1
-  have hfd : n.factorial = ∏ i ∈ {i ∈ Finset.range (n + 1) | i ≠ 0}, i := by exact fac_as_prod n hassume2
+  have hfd : n.factorial = ∏ i ∈ {i ∈ Finset.range (n + 1) | i ≠ 0}, i := by exact fac_as_prod n h2
   rw [hfd]
   rw [Nat.factorization_prod]
   have hlema : ∀ i ∈ {i ∈ Finset.range (n + 1) | i ≠ 0 ∧ i ≠ p}, i.factorization p = 0 := by
@@ -1250,7 +1248,6 @@ lemma fac_fact_helper_h5'' (n p : ℕ) (hassume2 : 2 ≤ n) (hp : Nat.Prime p �
   let hoi := hi.2
   push_neg at hoi
   exact hoi
-
 
 
 /-- The logarithmic inequality which implies the boundedness of a natural number n, used as the final
@@ -1595,11 +1592,6 @@ lemma assume_x_gt (P : ℤ[X]) (m : ℕ) : (∃ N : ℕ, ∀ (n : ℕ) (x : ℤ)
   push_neg at hm
   specialize h2 n x hm h
   exact lt_sup_of_lt_right h2
-
-
-
-
-
 
 
 
