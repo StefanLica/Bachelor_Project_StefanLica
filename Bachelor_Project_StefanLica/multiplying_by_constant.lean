@@ -227,26 +227,6 @@ theorem abc_Z_imp_poly_eq_const_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥
 
 
 
-
-
---#print axioms abc_Z_imp_poly_eq_const_fac_finite_sol
-
-
-
-
-
-
-
-
-
-
-#eval Nat.primeFactors 0
---#eval Finset.prod {∅} id
-#check Finset.prod {2,4} id
-
---#print axioms radical
-
-
 lemma Archimedes : ∀ ε : ℝ, ε > 0 → ∃ n : ℕ, 1 / n < ε := by
   intro e he
   use Nat.ceil (1 / e) + 1
@@ -267,6 +247,3 @@ lemma sum_example (a b c : ℤ) (ha : a ≥ 0) (hb : b ≤ 0) (hc : c ≤ 0) (hs
   have h3 : |c| = -c := by simp only [abs_eq_neg_self.2 hc]
   rw [h1, h2, h3]
   omega
-
-
---defaultTargets = ["Bachelor_Project_StefanLica"]

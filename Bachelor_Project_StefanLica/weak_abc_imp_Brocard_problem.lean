@@ -12,32 +12,6 @@ version of the abc-conjecture, `weak_abc`.
 -/
 
 
-/-- If the equation "x.factorial + 1 = y ^ 2" implies a bound on x, there is also a bound on y.-/
-lemma assume_nat : (∃ N, ∀ (x y : ℕ), x.factorial + 1 = y ^ 2 → x < N) → (∃ N, ∀ (x y : ℕ), x.factorial + 1 = y ^ 2 → x < N ∧ y < N) := by
-  rintro ⟨N, h⟩
-  use max N (Nat.floor √(N.factorial + 1) + 1)
-  intro x y hi
-  specialize h x y hi
-  have h1 : x.factorial + 1 ≤ N.factorial + 1 := by
-    simp
-    refine Nat.factorial_le (le_of_lt h)
-  rw [hi] at h1
-  have h2 : y ≤ Nat.floor √(N.factorial + 1) := by
-    by_cases hy0 : y = 0
-    rw [hy0]
-    exact Nat.zero_le (Nat.floor √(N.factorial + 1))
-    have hy := Nat.zero_lt_of_ne_zero hy0
-    refine Nat.le_floor ?_
-    refine (le_sqrt' (Nat.cast_pos'.mpr hy)).mpr ?_
-    rify at h1
-    exact h1
-  constructor
-  simp
-  ;left
-  exact h
-  simp
-  ;right
-  exact Order.lt_add_one_iff.mpr h2
 
 
 

@@ -6,7 +6,7 @@ import Mathlib.Data.Real.Pi.Bounds
 import Mathlib.Tactic.Rify
 import Mathlib.Algebra.Squarefree.Basic
 import Mathlib.NumberTheory.Bertrand
-import Mathlib.Data.Nat.Squarefree
+--import Mathlib.Data.Nat.Squarefree
 import Mathlib.NumberTheory.SmoothNumbers
 import Mathlib.Data.Complex.ExponentialBounds
 import Mathlib.RingTheory.Int.Basic
@@ -16,7 +16,6 @@ import Mathlib.Tactic.LinearCombination'
 open Polynomial
 open Real
 
-
 /-!
 # Main lemmas used for proving theorems
 
@@ -24,7 +23,6 @@ This file consists of most of the 'basic' lemmas used for proving the theorems.
 None of the lemmas proven in this file depend on the abc-conjecture.
 The radical of a natural number, `rad`, is defined as the product of prime factors.
 -/
-
 
 
 
@@ -1164,6 +1162,443 @@ lemma rad_mul_le (a b : ℕ) : rad (a * b) ≤ rad a * rad b := by
   simp at hi
   let he := hi.1.1
   exact Nat.Prime.ne_zero he
+
+
+
+lemma fac_fact_helper_h5'' (n p : ℕ) (hassume2 : 2 ≤ n) (hp : Nat.Prime p ∧ n / 2 < p ∧ p ≤ n) (h2' : n < 2 * p) : (n.factorial).factorization p = 1 := by
+
+  let hp1 := hp.1
+  let hp2 := hp.2.1
+  have hfd : n.factorial = ∏ i ∈ {i ∈ Finset.range (n + 1) | i ≠ 0}, i := by exact fac_as_prod n hassume2
+  rw [hfd]
+  rw [Nat.factorization_prod]
+  have hlema : ∀ i ∈ {i ∈ Finset.range (n + 1) | i ≠ 0 ∧ i ≠ p}, i.factorization p = 0 := by
+    intro i h
+    simp at h
+    refine Nat.factorization_eq_zero_of_not_dvd ?_
+    by_contra hc
+    apply exists_eq_mul_left_of_dvd at hc
+    obtain ⟨k, hk⟩ := hc
+    have hk1 : k ≥ 2 := by
+      by_contra hc
+      push_neg at hc
+      apply Nat.le_of_lt_succ at hc
+      apply Nat.le_one_iff_eq_zero_or_eq_one.mp at hc
+      cases hc with
+      | inl hc1 =>
+        rw [hc1] at hk
+        simp at hk
+        let hcontrad := h.2.1
+        contradiction
+      | inr hc2 =>
+        rw [hc2] at hk
+        simp at hk
+        let hcontrad := h.2.2
+        contradiction
+    have hineq : i ≥ 2 * p := by
+      change 2 ≤ k at hk1
+      apply (mul_le_mul_right (a := p) (by exact Nat.zero_lt_of_lt hp2)).2 at hk1
+      rw [←hk] at hk1
+      exact hk1
+    have hc1 : 2 * p < n + 1 := by exact Nat.lt_of_le_of_lt hineq h.1
+    apply Nat.le_of_lt_succ at hc1
+    have hcc : ¬ (n < 2 * p) := by exact Nat.not_lt.mpr hc1
+    contradiction
+  have hlema2 : {i ∈ Finset.range (n + 1) | i ≠ 0} = {i ∈ Finset.range (n + 1) | i ≠ 0 ∧ i ≠ p} ∪ {p} := by
+    refine Finset.ext_iff.mpr ?_
+    intro a
+    constructor
+    intro ha
+    simp at ha ⊢
+    refine and_or_right.mpr ?_
+    constructor
+    constructor
+    exact ha.1
+    refine and_or_right.mpr ?_
+    constructor
+    constructor
+    exact ha.2
+    exact ne_or_eq a p
+    simp
+    intro ha
+    cases ha with
+    | inl h =>
+      rw [←and_assoc] at h
+      exact h.1
+    | inr h =>
+      rw [h]
+      constructor
+      exact Order.lt_add_one_iff.2 (hp.2.2)
+      push_neg
+      exact Nat.ne_zero_of_lt hp2
+  rw [hlema2]
+  simp
+  rw [Finset.sum_union]
+  simp
+  have hobv : p.factorization p = 1 := by exact Nat.Prime.factorization_self hp1
+  rw [hobv]
+  simp
+  intro i hisu hine hipne
+  have hspec : i ∈ {i ∈ Finset.range (n + 1) | i ≠ 0 ∧ i ≠ p} := by
+    simp
+    exact And.intro hisu (And.intro hine hipne)
+  specialize hlema i hspec
+  exact hlema
+  simp
+  intro i hi
+  simp at hi
+  let hoi := hi.2
+  push_neg at hoi
+  exact hoi
+
+
+
+/-- The logarithmic inequality which implies the boundedness of a natural number n, used as the final
+step in proving the main result, `abc_Z_imp_poly_eq_fac_finite_sol`.-/
+lemma logn_le_bounded (c9 c11 : ℝ) (hc11 : c11 > 0) : ∃ (c12 : ℝ), ∀ n : ℕ, 4 ≤ n → log (n.factorial) < c9 * n + c11 → n < c12 := by
+  set c12 := Nat.ceil (rexp (c9 + c11 + 1))
+  use c12
+  intro n hn hi'
+  have h1 : c9 * n + c11 < c9 * n + c11 * n := by
+    simp
+    rw [mul_comm]
+    rw [lt_mul_iff_one_lt_left]
+    refine Nat.one_lt_cast.mpr ?_
+    linarith
+    exact hc11
+  have hi : Real.log (n.factorial) < c9 * n + c11 * n := by
+    rify at h1
+    exact gt_trans h1 hi'
+  clear hi' h1
+  have hn_stirling : n.factorial > ((n:ℝ) ^ n * (1 / ((rexp 1) ^ n))) := by
+    have hh : n.factorial > 4 * ((n:ℝ) ^ n * (1 / ((rexp 1) ^ n))) := by exact first_ineq n hn
+    have hh2 : 4 * ((n:ℝ) ^ n * (1 / ((rexp 1) ^ n))) > ((n:ℝ) ^ n * (1 / ((rexp 1) ^ n))) := by
+      change ((n:ℝ) ^ n * (1 / ((rexp 1) ^ n))) < 4 * ((n:ℝ) ^ n * (1 / ((rexp 1) ^ n)))
+      rw [lt_mul_iff_one_lt_left]
+      linarith
+      refine mul_pos ?_ ?_
+      refine lt_pow_of_log_lt ?_ ?_
+      simp
+      linarith
+      simp
+      refine mul_pos ?_ ?_
+      simp
+      linarith
+      refine (log_pos_iff ?_).mpr ?_
+      simp
+      simp
+      linarith
+      simp
+      exact exp_pos ↑n
+    exact gt_trans hh hh2
+  have hi2 : n.factorial < rexp (c9 * n + c11 * n) := by
+    refine (log_lt_iff_lt_exp ?_).mp hi
+    simp
+    exact Nat.factorial_pos n
+  have hhs : n ^ n * (1 / rexp 1 ^ n) = (n / rexp 1) ^ n := by ring
+  rw [hhs] at hn_stirling
+  clear hhs
+  have hineq : (n / rexp 1) ^ n < rexp (c9 * n + c11 * n) := by exact gt_trans hi2 hn_stirling
+  have hineq' : (n / rexp 1) ^ (n:ℝ) < rexp (c9 * n + c11 * n) := by
+    simp
+    exact hineq
+  clear hineq
+  conv_rhs at hineq' =>
+    rw [← right_distrib]
+    rw [ Real.exp_mul]
+  have hineq2 : (n / rexp 1) < rexp (c9 + c11) := by
+    have hn1r : 1 < (n:ℝ) := by
+      have ht : 1 < n := by linarith
+      rify at ht
+      exact ht
+    apply (Real.rpow_lt_rpow_iff ?_ ?_ ?_).1
+    exact hineq'
+    rw [le_div_iff₀]
+    simp
+    exact exp_pos 1
+    exact exp_nonneg (c9 + c11)
+    simp
+    exact Nat.zero_lt_of_lt hn
+  clear hineq'
+  rw [div_lt_iff₀] at hineq2
+  swap
+  exact exp_pos 1
+  rw [← Real.exp_add] at hineq2
+  have hf : n < c12 := by exact Nat.lt_ceil.mpr hineq2
+  rify at hf
+  exact hf
+
+
+
+/-!
+* Lemmas allowing for certain simplifications of the main proof, for example, `assume`, which
+shows it is sufficient to prove that the set of solutions for n is bounded, since this implies
+that the set of solutions for x is also bounded.
+-/
+
+/-- If the equation "x.factorial + 1 = y ^ 2" implies a bound on x, there is also a bound on y.-/
+lemma assume_nat : (∃ N, ∀ (x y : ℕ), x.factorial + 1 = y ^ 2 → x < N) → (∃ N, ∀ (x y : ℕ), x.factorial + 1 = y ^ 2 → x < N ∧ y < N) := by
+  rintro ⟨N, h⟩
+  use max N (Nat.floor √(N.factorial + 1) + 1)
+  intro x y hi
+  specialize h x y hi
+  have h1 : x.factorial + 1 ≤ N.factorial + 1 := by
+    simp
+    refine Nat.factorial_le (le_of_lt h)
+  rw [hi] at h1
+  have h2 : y ≤ Nat.floor √(N.factorial + 1) := by
+    by_cases hy0 : y = 0
+    rw [hy0]
+    exact Nat.zero_le (Nat.floor √(N.factorial + 1))
+    have hy := Nat.zero_lt_of_ne_zero hy0
+    refine Nat.le_floor ?_
+    refine (le_sqrt' (Nat.cast_pos'.mpr hy)).mpr ?_
+    rify at h1
+    exact h1
+  constructor
+  simp
+  ;left
+  exact h
+  simp
+  ;right
+  exact Order.lt_add_one_iff.mpr h2
+
+
+lemma assume_help (S : Set ℤ) (hs : Set.Finite S) : ∃ (M : ℕ), ∀ (x : ℤ), (x ∈ S) → |x| < M := by
+  have habove : BddAbove S := by exact Set.Finite.bddAbove hs
+  have hbelow : BddBelow S := by exact Set.Finite.bddBelow hs
+  unfold BddAbove at habove
+  unfold BddBelow at hbelow
+  unfold upperBounds at habove
+  unfold lowerBounds at hbelow
+  unfold Set.Nonempty at habove hbelow
+  obtain ⟨a, ha⟩ := habove
+  obtain ⟨b, hb⟩ := hbelow
+  simp at ha hb
+  let m := |a| + |b| + 2
+  let M := m.toNat
+  use M
+  intro x hx
+  specialize hb hx
+  specialize ha hx
+  rw [abs_lt]
+  constructor
+  · unfold M
+    rw [Int.toNat_of_nonneg]
+    swap
+    unfold m
+    refine Int.add_nonneg (a := |a| + |b|) ?_ ?_
+    refine Int.add_nonneg ?_ ?_
+    exact abs_nonneg a
+    exact abs_nonneg b
+    linarith
+    unfold m
+    by_cases hb0 : b ≥ 0
+    · have hbabs : |b| = b := by exact abs_of_nonneg hb0
+      rw [hbabs]
+      simp
+      change -b < 1 + 1 + x + |a|
+      have h2 : -b < 1 + 1 + x + |a| ↔ -b - 1 < 1 + x + |a| := by
+        constructor
+        intro h11
+        linarith
+        intro h11
+        linarith
+      rw [h2]
+      refine Int.add_lt_add_of_le_of_lt (a := -b) ?_ ?_
+      have h3 : -b ≤ b := by exact neg_le_self hb0
+      have hb' : b ≤ 1 + x := by
+        rw [add_comm]
+        exact Int.le_add_one hb
+      exact Int.le_trans h3 hb'
+      have h4 : 0 ≤ |a| := by exact abs_nonneg a
+      exact h4
+    · push_neg at hb0
+      have hbabs : |b| = -b := by exact abs_of_neg hb0
+      rw [hbabs]
+      simp
+      change b < 1 + 1 + x + |a|
+      have h2 : b < 1 + 1 + x + |a| ↔ b - 1 < 1 + x + |a| := by
+        constructor
+        intro h11
+        linarith
+        intro h11
+        linarith
+      rw [h2]
+      refine Int.add_lt_add_of_le_of_lt (a := b) ?_ ?_
+      have h3 : x ≤ 1 + x := by linarith
+      exact Int.le_trans hb h3
+      have h4 : 0 ≤ |a| := by exact abs_nonneg a
+      exact h4
+  · unfold M
+    rw [Int.toNat_of_nonneg]
+    swap
+    unfold m
+    refine Int.add_nonneg (a := |a| + |b|) ?_ ?_
+    refine Int.add_nonneg ?_ ?_
+    exact abs_nonneg a
+    exact abs_nonneg b
+    linarith
+    unfold m
+    have h1 : a ≤ |a| := by exact le_abs_self a
+    have h2 : x ≤ |a| := by exact Int.le_trans ha h1
+    have h3 : |a| < |a| + |b| + 2 := by
+      refine Int.lt_add_of_le_of_pos ?_ ?_
+      simp
+      linarith
+    exact Int.lt_of_le_of_lt h2 h3
+
+
+lemma assume_help_finite (N : ℕ) (P : Polynomial ℤ) (hdeg : P.degree ≥ 2) (f : ℕ → ℤ) (S : ℕ → Set ℤ) (hs : S = fun N ↦ {x : ℤ | ∃ n : ℕ, n < N ∧ P.eval x = f n}) : Set.Finite (S N) := by
+  have hdef : S N = ⋃ n ∈ Finset.range N, {x : ℤ | P.eval x = f n} := by
+    ext x
+    constructor
+    intro hx
+    simp
+    rw [hs] at hx
+    simp at hx
+    exact hx
+    intro hx
+    simp at hx
+    rw [hs]
+    simp
+    exact hx
+  rw [hdef]
+  refine Set.Finite.biUnion ?_ ?_
+  apply Finset.finite_toSet
+  intro i hi
+  simp at hi
+  let T := P - f i
+  have htn0 : T ≠ 0 := by
+    by_contra hc
+    unfold T at hc
+    rw [sub_eq_zero] at hc
+    have hid : (f i : ℤ[X]).natDegree = 0 := by exact natDegree_intCast (f i)
+    have hc' : P.natDegree = (f i : ℤ[X]).natDegree := by exact congrArg natDegree hc
+    rw [hid] at hc'
+    have hco : P.natDegree ≠ 0 := by
+      have hh : P.degree ≤ P.natDegree := by exact Polynomial.degree_le_natDegree
+      have hh1 : P.natDegree ≥ 2 := by exact le_natDegree_of_coe_le_degree hdeg
+      linarith
+    contradiction
+  have hh1 : {x | P.eval x = f i} = {x | P.eval x - f i = 0} := by
+    ext x
+    simp [sub_eq_zero]
+  rw [hh1]
+  have hS1 : {x | P.eval x - f i = 0} = {x | T.eval x = 0} := by
+    ext x
+    simp [T]
+  rw [hS1]
+  clear hh1 hS1
+  have hroot : {x | eval x T = 0} = T.roots.toFinset := by
+    refine Eq.symm (Set.ext ?_)
+    intro r
+    constructor
+    intro h1
+    simp at h1
+    simp
+    exact h1.2
+    intro h1
+    simp at h1 ⊢
+    constructor
+    swap
+    exact h1
+    push_neg
+    exact htn0
+  rw [hroot]
+  simp
+
+
+lemma assume (P : ℤ[X]) (hdeg : P.degree ≥ 2) (f : ℕ → ℤ) : (∃ (N : ℕ) , ∀ (n : ℕ) (x : ℤ) , (P.eval x = f n) → (n < N)) → (∃ (N : ℕ) , ∀ (n : ℕ) (x : ℤ) , (P.eval x = f n) → (n < N) ∧ (|x| < N)) := by
+  rintro ⟨N, h⟩
+  set S := {x : ℤ | ∃ n : ℕ, n < N ∧ P.eval x = f n} with hS
+  set H : ℕ → Set ℤ := fun N ↦ {x : ℤ | ∃ n : ℕ, n < N ∧ P.eval x = f n} with hh
+  have hsh : H N = S := by exact hS
+  have hfin' : Set.Finite (H N) := by exact assume_help_finite N P hdeg f H hh
+  have hfin : Set.Finite S := by exact hfin'
+  clear H hh hsh hfin'
+
+  have hhh : ∃ (M : ℕ), ∀ (x : ℤ), Set.Finite S ∧ x ∈ S → |x| < M := by
+    obtain ⟨M, hm⟩ := assume_help S hfin
+    use M
+    intro y hy
+    specialize hm y hy.2
+    exact hm
+
+  obtain ⟨u, hu⟩ := hhh
+  let M := max u N
+  use M
+  intro n x h'
+  specialize hu x
+  specialize h n x h'
+
+  have hneed2 : x ∈ S := by
+    unfold S
+    simp
+    use n
+  specialize hu (And.intro hfin hneed2)
+  constructor
+  · unfold M
+    simp
+    exact Or.inr h
+  · unfold M
+    simp
+    constructor
+    exact hu
+
+
+lemma polynomial_bounded (P : ℤ[X]) (m : ℕ) : ∃ M, ∀ x : ℤ, |x| ≤ m → P.eval x < M := by
+  set M := ∑ n ∈ P.support, (fun e a ↦ |a| * (m:ℤ) ^ e) n (P.coeff n)
+  use M + 1
+  intro x hx
+  simp only [Polynomial.eval_eq_sum]
+  unfold Polynomial.sum
+  refine Int.lt_add_one_iff.2 ?_
+  unfold M
+  refine Finset.sum_le_sum ?_
+  intro i hi
+  simp
+  have hinter : P.coeff i * x ^ i ≤ |P.coeff i * x ^ i| := by exact le_abs_self (P.coeff i * x ^ i)
+  rw [abs_mul, abs_pow] at hinter
+  have hinter2 : |P.coeff i| * |x| ^ i ≤ |P.coeff i| * m ^ i := by
+    refine Int.mul_le_mul_of_nonneg_left ?_ (abs_nonneg (P.coeff i))
+    refine pow_le_pow_left₀ (abs_nonneg x) hx i
+  exact Int.le_trans hinter hinter2
+
+
+lemma assume_x_gt (P : ℤ[X]) (m : ℕ) : (∃ N : ℕ, ∀ (n : ℕ) (x : ℤ), (|x| > m → ((P.eval x = n.factorial) → n < N))) → (∃ N : ℕ, ∀ (n : ℕ) (x : ℤ), (P.eval x = n.factorial) → n < N) := by
+
+  rintro ⟨N1, h1⟩
+  set H : ℕ → Set ℕ := fun N ↦ {n : ℕ | ∃ x : ℤ, |x| ≤ N ∧ P.eval x = n.factorial} with hh
+
+  have h2 : ∃ N, ∀ (n : ℕ) (x : ℤ), |x| ≤ m → eval x P = n.factorial → n < N := by
+    obtain ⟨M, pol_bound⟩ := polynomial_bounded P m
+    use M.natAbs
+    intro n x hxm hprop
+    specialize pol_bound x hxm
+    rw [hprop] at pol_bound
+    have hfacb : n.factorial < M.natAbs := by
+      zify
+      rw [lt_abs]
+      exact Or.symm (Or.inr pol_bound)
+    refine lt_of_le_of_lt (Nat.self_le_factorial n) hfacb
+
+  obtain ⟨N2, h2⟩ := h2
+
+  use max N1 N2
+  intro n x h
+  by_cases hm : |x| > m
+  --
+  specialize h1 n x hm h
+  exact lt_sup_of_lt_left h1
+  --
+  push_neg at hm
+  specialize h2 n x hm h
+  exact lt_sup_of_lt_right h2
+
+
+
+
 
 
 
