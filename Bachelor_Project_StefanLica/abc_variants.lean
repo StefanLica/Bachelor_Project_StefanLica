@@ -7,7 +7,7 @@ open Real
 
 This file introduces the main abc-conjecture, `abc`, and proposes some variations of it. We introduce here
 the weak form of the abc conjecture, `weak_abc` used for proving the Brocard-Ramanujan problem and the
-integer version, `abc_Z` used for proving the main result `abc_Z_imp_poly_eq_fac_finite_sol`. We also propose
+integer version, `abc_Z` used for proving the main result `abc_Z_poly_eq_fac_fin_sol`. We also propose
 alternative versions of `abc` and `weak_abc`, restated in terms of the "quality".
 
 ## Main statements
@@ -15,7 +15,7 @@ alternative versions of `abc` and `weak_abc`, restated in terms of the "quality"
 * `abc`: The main abc-conjuctre.
 * `weak_abc`: The weaker version of `abc`, used for proving the Brocard-Ramanujan problem.
 * `abc_Z`: The integer version of `abc`, used for proving the main result,
-the generalization of the Brocard-Ramanujan problem, `abc_Z_imp_poly_eq_fac_finite_sol`.
+the generalization of the Brocard-Ramanujan problem, `abc_Z_poly_eq_fac_fin_sol`.
 -/
 
 
@@ -27,7 +27,7 @@ def abc := ∀ (ε : ℝ), ε > 0 → (∃ (N : ℕ) , ∀ (a b c : ℕ) , a + b
 def weak_abc := ∃ (s : ℝ), s > 0 ∧ ∀ (a b c : ℕ), a ≠ 0 → b ≠ 0 → a + b = c → Nat.Coprime a b → a * b * c < (rad (a * b * c) : ℝ ) ^ s
 
 
-/--The version of the abc-conjecture defined for all integers, used to prove the main result: `abc_Z_imp_poly_eq_fac_finite_sol`.
+/--The version of the abc-conjecture defined for all integers, used to prove the main result: `abc_Z_poly_eq_fac_fin_sol`.
 It is worthwile to notice that even if it is defined also for negative integers, it is not a stronger statement than `abc`,
 but a mere implication of it.-/
 def abc_Z := ∃ (C : ℝ → ℝ), ∀ ε : ℝ , ε > 0 → (∀ a b c : ℤ, a ≠ 0 → b ≠ 0 → (a + b = c) → (IsCoprime a b) → (max (max |a| |b|) |c|) < C ε * rad (Int.natAbs (a * b * c)) ^ (1 + ε))

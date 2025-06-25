@@ -381,10 +381,7 @@ lemma Q_change_var_cancel_term (hdeg : P.degree ≥ 2) : (Q).coeff (P.natDegree 
     have hr : d = r + 1 := by
       unfold r
       refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
-      have hPne0 : P.degree ≠ ⊥ := by
-        refine degree_ne_bot.mpr ?_
-        exact ne_zero_of_coe_le_degree hdeg
-      have hpdeg : P.degree = P.natDegree := by exact Polynomial.degree_eq_natDegree (degree_ne_bot.1 hPne0)
+      have hpdeg : P.degree = P.natDegree := by exact Polynomial.degree_eq_natDegree (degree_ne_bot.1 (hPne0 P hdeg))
       unfold d'
       refine le_natDegree_of_coe_le_degree ?_
       have hbot : 1 ≤ (2 : WithBot ℕ) := by exact one_le_two
@@ -453,7 +450,7 @@ lemma Q_change_var_cancel_term (hdeg : P.degree ≥ 2) : (Q).coeff (P.natDegree 
     unfold b'
     rw [mul_assoc]
     simp
-    constructor
+    left;
     rw [hdd12]
     simp
   rw [hbu]
@@ -1278,9 +1275,6 @@ lemma ygtM (hdeg : P.degree ≥ 2) (x adm : ℤ) (M : ℝ) (h : |x| > (M + (|adm
 lemma Qasymp_ineq (hdeg : P.degree ≥ 2) (C2 : ℕ) (hz : ∀ (z : ℤ), |z| > C2 → (|z| ^ d / 2 : ℝ) < |eval z Q| ∧ |eval z Q| < 2 * |z| ^ d)
 : ∃ (C1 : ℝ), ∀ (z : ℤ) (n : ℕ), C1 > 0 ∧ (|z| > C2 → (Q).eval z = c * n.factorial → |d * log |z| - log (n.factorial)| < C1) := by
 
-  -- have hasymp := poly_asymp_Z (Q) (hQmonic P)
-  -- obtain ⟨C2, hasymp⟩ := hasymp
-  -- choose hc2 hz using hasymp
   have hd := hQdegree P hdeg
   have hdd : P.natDegree = d := rfl
   rw [hdd] at hd
@@ -1927,7 +1921,7 @@ end notations_and_helping_lemmas
 
 /-!
 ## Main Theorem
-* `abc_Z_imp_poly_eq_fac_finite_sol` brings all previous lemmas togther and proves the main result.
+* `abc_Z_poly_eq_fac_fin_sol` brings all previous lemmas togther and proves the main result.
 * Extracting constants from the asymptotic polynomial lemmas and from `abc_Z`, and applying them.
 * `main_imp_Brocard` is another proof of the original Brocard problem, proven directly using the main result.
 -/
@@ -1935,7 +1929,7 @@ end notations_and_helping_lemmas
 
 /-- Main Theorem: If P is a polynomial with integer coefficients and of degree at least 2, then the
 equation P(x) = n! has finitely many pairs of integer solutions, assuming the abc-conjecture.-/
-theorem abc_Z_imp_poly_eq_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥ 2) :
+theorem abc_Z_poly_eq_fac_fin_sol (P : ℤ[X]) (hdeg : P.degree ≥ 2) :
   abc_Z → (∃ (N : ℕ) , ∀ (n : ℕ) (x : ℤ) , (P.eval x = n.factorial) → (n < N) ∧ (|x| < N)) := by
 
   unfold abc_Z
@@ -1972,14 +1966,14 @@ theorem abc_Z_imp_poly_eq_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥ 2) :
   have hi := Qq_eval_fac P hdeg n x h
   rw [←hd, ←had, ←hc, ←hqq] at hi
   have forfalse := QqQ P x
-  set xv := ad * d * x + P.coeff (d - 1)
-  have hff : (Q).eval xv = xv ^ d := by
-    have hf1 : (Q).eval xv = (X ^ d).eval xv := by exact congrArg (eval xv) hqr
+  set y := ad * d * x + P.coeff (d - 1)
+  have hff : (Q).eval y = y ^ d := by
+    have hf1 : (Q).eval y = (X ^ d).eval y := by exact congrArg (eval y) hqr
     simp at hf1
     exact hf1
   rw [←hq, ←had, ←hd, ←hqq] at forfalse
   rw [← forfalse, hff] at hi
-  exact False.elim (Rzero_imp_false P hdeg n xv hi hb)
+  exact False.elim (Rzero_imp_false P hdeg n y hi hb)
   push_neg at hR
 
 -- case R ≠ 0:
@@ -2094,6 +2088,8 @@ theorem abc_Z_imp_poly_eq_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥ 2) :
   exact Int.le_iff_lt_add_one.mp hn2c1a
   push_neg at hn2c1a
 
+--n > 2 * |c| ∧ n ≥ 4
+
   specialize hfabc e he hene1 n y hn2c1a hyne0 hqeval
   specialize hfabc22 e he hene1 n y hn2c1a hyne0 hqeval hyc4
 
@@ -2112,11 +2108,12 @@ theorem abc_Z_imp_poly_eq_fac_finite_sol (P : ℤ[X]) (hdeg : P.degree ≥ 2) :
   unfold Nuse
   simp
   left;
-  convert Nat.lt_ceil.2 hfinal
+  exact Nat.lt_ceil.2 hfinal
 
 
 
-/-- The original Brocard-Ramanujan problem, this time proven using the main result, `abc_Z_imp_poly_eq_fac_finite_sol`-/
+
+/-- The original Brocard-Ramanujan problem, this time proven using the main result, `abc_Z_poly_eq_fac_fin_sol`-/
 theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.factorial + 1 = y^2) → (x < N) ∧ (y < N)) := by
 
   unfold abc_Z
@@ -2130,7 +2127,7 @@ theorem main_imp_Brocard : abc_Z → (∃ (N : ℕ) , ∀ (x y : ℕ) , (x.facto
     rw [hr]
     apply Eq.symm
     exact Polynomial.degree_quadratic (by simp)
-  obtain ⟨M, hpol⟩ := abc_Z_imp_poly_eq_fac_finite_sol P hdeg abcz
+  obtain ⟨M, hpol⟩ := abc_Z_poly_eq_fac_fin_sol P hdeg abcz
   use M + 1
   intro n x hi
   have heq : eval (↑x) P = ↑n.factorial := by

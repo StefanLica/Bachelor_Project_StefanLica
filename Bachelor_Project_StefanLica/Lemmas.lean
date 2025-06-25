@@ -59,6 +59,35 @@ lemma abs_div_eq_div (a b : ℤ) (hb : b > 0) (hd : b ∣ a) : |a| / b = |a / b|
     exact Eq.symm (abs_of_nonpos hneg)
 
 
+lemma lt_abs_between (n l b : ℤ) (hl : l ≤ n) (hb : n ≤ b) : |n| < max (|l| + 1) (|b| + 1) := by
+  simp
+  refine Int.le_iff_lt_add_one.mp ?_
+  cases le_total |l| |b| with
+  | inl h =>
+    simp
+    right;
+    rw [abs_le] at h ⊢
+    choose h1 h2 using h
+    constructor
+    refine le_trans h1 ?_
+    exact hl
+    exact le_trans hb (le_abs_self b)
+  | inr h =>
+    simp
+    left;
+    rw [abs_le]
+    constructor
+    refine neg_le.2 ?_
+    rw [le_abs]
+    right;
+    simp
+    exact hl
+    refine le_trans ?_ h
+    rw [le_abs]
+    left;
+    exact hb
+
+
 /--A slight variation of an already existing lemma in Mathlib: `Int.ediv_ediv_eq_ediv_mul`.
 Instead of assuming n to be nonnegative, another sufficient condition was found, namely : k ∣ m / n. -/
 lemma Int.ediv_ediv_eq_ediv_mul_dvd (m : ℤ) {n k : ℤ} (hdvd : k ∣ m / n) : m / n / k = m / (n * k) := by
@@ -101,11 +130,9 @@ lemma casting_help (d j : ℕ) (hjd2 : j ≤ d - 2) (hd : d ≥ 2) (e : ℝ) : -
   ring
 
 
-lemma very_simple (d : ℕ) : d ≥ 2 → d ≠ 0 := by
-  intro h
-  by_contra hc
-  rw [hc] at h
-  simp at h
+lemma very_simple (d : ℕ) : d ≥ 2 → d ≠ 0 := by exact fun a ↦ Nat.ne_zero_of_lt a
+lemma very_simple' (d : ℕ) : d ≥ 2 → d ≠ 0 := by omega
+lemma very_simple'' (d : ℕ) : d ≥ 2 → d ≠ 0 := by aesop
 
 
 lemma nat_lt_two_iff {n : ℕ} : n < 2 ↔ n = 0 ∨ n = 1 := by
@@ -337,9 +364,9 @@ lemma rad_eq_2_pow_2 (x p : ℕ) (hx : x ≠ 0) (hp : Nat.Prime p) : p = rad x �
 
 /-!
 ## Lemmas establishing inequalities which follow from Stirling's inequality.
-* Used for proving the Brocard-Ramanujan problem (`abc_imp_Brocard`), and for proving
+* Used for proving the Brocard-Ramanujan problem `weak_abc_imp_Brocard`, and for proving
 the `logn_le_bounded` lemma used as the final step of proving the main result,
-`abc_imp_poly_eq_fac_finite_sol`.
+`abc_Z_poly_eq_fac_fin_sol`.
 -/
 
 
@@ -726,8 +753,8 @@ lemma unique_fac (x : ℕ) (hx : x ≠ 0) : x = ∏ p ∈ x.factorization.suppor
   conv_lhs =>
     rw [hx_prime_fac]
   rw [Finsupp.prod_of_support_subset]
-  exact fun ⦃a⦄ a ↦ a                   -- ????????
-  exact fun i a ↦ rfl                  -- ????????
+  exact fun ⦃a⦄ a ↦ a
+  exact fun i a ↦ rfl
 
 
 lemma radx_le_x (x : ℕ) (hx : x ≠ 0) : rad x ≤ x := by
@@ -1251,7 +1278,7 @@ lemma prime_fact_1_if_lt (n p : ℕ) (h2 : 2 ≤ n) (hp : Nat.Prime p ∧ n / 2 
 
 
 /-- The logarithmic inequality which implies the boundedness of a natural number n, used as the final
-step in proving the main result, `abc_Z_imp_poly_eq_fac_finite_sol`.-/
+step in proving the main result, `abc_Z_poly_eq_fac_fin_sol`.-/
 lemma logn_le_bounded (c9 c11 : ℝ) (hc11 : c11 > 0) : ∃ (c12 : ℝ), ∀ n : ℕ, 4 ≤ n → log (n.factorial) < c9 * n + c11 → n < c12 := by
   set c12 := Nat.ceil (rexp (c9 + c11 + 1))
   use c12
@@ -1593,6 +1620,181 @@ lemma assume_x_gt (P : ℤ[X]) (m : ℕ) : (∃ N : ℕ, ∀ (n : ℕ) (x : ℤ)
   specialize h2 n x hm h
   exact lt_sup_of_lt_right h2
 
+
+/-- A proof for the equivalence of 2 statements which describe the finitude of a set of pairs of rational numbers and integers.-/
+lemma set_sol_fin_iff_ex_bound (P : ℕ → ℚ → Prop) : Set.Finite {⟨n, x⟩ : ℕ × ℚ | P n x} ↔ (∃ (N : ℕ) , ∀ (n : ℕ) (x : ℚ) , P n x → n < N ∧ |x.num| < N ∧ x.den < N) := by
+  constructor
+  intro h
+  set S := {⟨n, x⟩ : ℕ × ℚ | P n x}
+
+  have hfn : Set.Finite (Prod.fst '' S) := Set.Finite.image Prod.fst h
+  have fn' := Set.Finite.coe_toFinset hfn
+  set fn := hfn.toFinset
+  have hfnbbd := Finset.bddAbove fn
+  obtain ⟨N, hn⟩ := hfnbbd
+
+  have hfx : Set.Finite (Prod.snd '' S) := Set.Finite.image Prod.snd h
+
+  have hfxn : Set.Finite (Rat.num '' (Prod.snd '' S)) := by exact Set.Finite.image Rat.num hfx
+  have fxn' := Set.Finite.coe_toFinset hfxn
+  set fxn := hfxn.toFinset
+  have hfxnbbd := Finset.bddAbove fxn
+  have hfxnbbdb := Finset.bddBelow fxn
+  obtain ⟨xn, hxn⟩ := hfxnbbd
+  obtain ⟨xnb, hxnb⟩ := hfxnbbdb
+
+  have hfxd : Set.Finite (Rat.den '' (Prod.snd '' S)) := by exact Set.Finite.image Rat.den hfx
+  have fxd' := Set.Finite.coe_toFinset hfxd
+  set fxd := hfxd.toFinset
+  have hfxdbbd := Finset.bddAbove fxd
+  obtain ⟨xd, hxd⟩ := hfxdbbd
+
+  unfold upperBounds at hn hxn hxd
+  unfold lowerBounds at hxnb
+  simp at hn hxn hxd hxnb
+
+  let M := max (max (N + 1) (max (xnb.natAbs + 1) (xn.natAbs + 1))) (xd + 1)
+
+  use M
+  intro n x hi
+  have hnin : n ∈ fn := by
+    unfold fn
+    simp
+    use x
+    unfold S
+    simp
+    exact hi
+  have hxnin : x.num ∈ fxn := by
+    unfold fxn
+    simp
+    use x
+    constructor
+    use n
+    unfold S
+    simp
+    exact hi
+    rfl
+  have hxdin : x.den ∈ fxd := by
+    unfold fxd
+    simp
+    use x
+    constructor
+    use n
+    unfold S
+    simp
+    exact hi
+    rfl
+  specialize hn hnin
+  specialize hxn hxnin
+  specialize hxd hxdin
+  specialize hxnb hxnin
+  constructor
+  unfold M
+  simp only [lt_sup_iff]
+  left; left;
+  exact Order.lt_add_one_iff.mpr hn
+
+  constructor
+  unfold M
+  simp only [Nat.cast_add, Nat.cast_max, Int.natCast_natAbs, Nat.cast_one]
+  set m := max (|xnb| + 1) (|xn| + 1)
+  simp only [lt_sup_iff]
+  left; right;
+  unfold m
+  exact lt_abs_between x.num xnb xn hxnb hxn
+
+  unfold M
+  simp only [lt_sup_iff]
+  right;
+  exact Order.lt_add_one_iff.mpr hxd
+----
+  intro h
+  obtain ⟨N, h⟩ := h
+  refine Set.finite_image_fst_and_snd_iff.mp ?_
+  set S := {⟨n, x⟩ : ℕ × ℚ | P n x}
+  choose bn bxn bxd using h
+  set sn := Prod.fst '' S
+  set sx := Prod.snd '' S
+  have hsnbbd : sn.Finite := by
+    refine Set.finite_iff_bddAbove.mpr ?_
+    unfold BddAbove upperBounds Set.Nonempty
+    use N
+    simp
+    intro a ha
+    unfold sn at ha
+    simp at ha
+    obtain ⟨x0, ha⟩ := ha
+    unfold S at ha
+    simp at ha
+    specialize bn a x0 ha
+    exact Nat.le_of_succ_le bn
+  constructor
+  exact hsnbbd
+
+  set sxy : Set (ℤ × ℕ) := {p | ∃ x ∈ sx, p = (x.num, x.den)}
+
+  have sxyf : sxy.Finite := by
+    unfold sxy
+    refine Set.finite_image_fst_and_snd_iff.mp ?_
+    set sxn := Prod.fst '' sxy
+    set sxd := Prod.snd '' sxy
+    constructor
+    · refine BddBelow.finite_of_bddAbove ?_ ?_
+      · unfold BddBelow lowerBounds Set.Nonempty
+        use (-N)
+        simp
+        intro i hi
+        unfold sxn sxy at hi
+        simp at hi
+        obtain ⟨t, y, hi, hnum, hden⟩ := hi
+        unfold sx S at hi
+        simp at hi
+        obtain ⟨n, hi⟩ := hi
+        specialize bxn n y hi
+        rw [hnum]
+        rw [abs_lt] at bxn
+        set a := -(N : ℤ)
+        choose h1 h2 using bxn
+        exact Int.le_of_lt h1
+      · unfold BddAbove upperBounds Set.Nonempty
+        use N
+        simp
+        intro i hi
+        unfold sxn sxy at hi
+        simp at hi
+        obtain ⟨t, y, hi, hnum, hden⟩ := hi
+        unfold sx S at hi
+        simp at hi
+        obtain ⟨n, hi⟩ := hi
+        specialize bxn n y hi
+        rw [hnum]
+        rw [abs_lt] at bxn
+        choose h1 h2 using bxn
+        exact Int.le_of_lt h2
+    · refine Set.finite_iff_bddAbove.mpr ?_
+      unfold BddAbove upperBounds Set.Nonempty
+      use N
+      simp
+      intro i hi
+      unfold sxd sxy at hi
+      simp at hi
+      obtain ⟨t, y, hi, hnum, hden⟩ := hi
+      unfold sx S at hi
+      simp at hi
+      obtain ⟨n, hi⟩ := hi
+      specialize bxd n y hi
+      rw [hden]
+      exact Nat.le_of_succ_le bxd
+  let f : ℤ × ℕ → ℚ := λ p => p.1 / p.2
+  have : sx ⊆ f '' sxy := by
+    intro x hx
+    unfold sxy f
+    simp
+    use x.num, x.den
+    constructor
+    use x
+    exact Rat.num_div_den x
+  exact Set.Finite.of_surjOn f this sxyf
 
 
 /-!
