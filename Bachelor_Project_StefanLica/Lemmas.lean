@@ -101,14 +101,14 @@ lemma Int.ediv_ediv_eq_ediv_mul_dvd (m : ℤ) {n k : ℤ} (hdvd : k ∣ m / n) :
     exact hn
   have hvn : n = - v := by
     unfold v
-    simp
+    simp only [neg_neg]
   rw [hvn]
   have hnegmul : (-v * k) = - (v * k) := by simp
   rw [hnegmul]
   rw [Int.ediv_neg]
   conv_rhs => rw [Int.ediv_neg]
   rw [Int.neg_ediv_of_dvd]
-  simp
+  simp only [neg_inj]
   exact Int.ediv_ediv_eq_ediv_mul m (Int.le_of_lt hvpos)
   unfold v
   simp
@@ -130,9 +130,7 @@ lemma casting_help (d j : ℕ) (hjd2 : j ≤ d - 2) (hd : d ≥ 2) (e : ℝ) : -
   ring
 
 
-lemma very_simple (d : ℕ) : d ≥ 2 → d ≠ 0 := by exact fun a ↦ Nat.ne_zero_of_lt a
-lemma very_simple' (d : ℕ) : d ≥ 2 → d ≠ 0 := by omega
-lemma very_simple'' (d : ℕ) : d ≥ 2 → d ≠ 0 := by aesop
+lemma very_simple (d : ℕ) : d ≥ 2 → d ≠ 0 := by omega
 
 
 lemma nat_lt_two_iff {n : ℕ} : n < 2 ↔ n = 0 ∨ n = 1 := by
