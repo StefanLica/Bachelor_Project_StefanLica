@@ -112,7 +112,7 @@ efficient because it avoids an allocation.</p><details><summary>Equations</summa
 potentially-failing computations, failing if either fails. From the perspective of <code><a href="../../.././Init/Prelude.html#Option">Option</a></code> as a
 collection with at most one element, the function is applied to the element if present, and the
 final result is empty if either the initial or the resulting collections are empty.</p><p>This function is often accessed via the <code>&gt;&gt;=</code> operator from the <code><a href="../../.././Init/Prelude.html#Bind">Bind</a> (Option α)</code> instance, or
-implicitly via <code>do</code>-notation, but it is also idiomatic to call it using <a href="https://lean-lang.org/doc/reference/4.21.0-rc3/find/?domain=Verso.Genre.Manual.section&amp;name=generalized-field-notation">generalized field
+implicitly via <code>do</code>-notation, but it is also idiomatic to call it using <a href="https://lean-lang.org/doc/reference/4.21.0/find/?domain=Verso.Genre.Manual.section&amp;name=generalized-field-notation">generalized field
 notation</a>.</p><p>Examples:</p><ul>
 <li><code>none.<a href="../../.././Init/Data/Option/Basic.html#Option.bind">bind</a> (fun x =&gt; <a href="../../.././Init/Data/Option/Basic.html#Option.Rel.some">some</a> x) = <a href="../../.././Init/Data/Option/Basic.html#Option.Rel.none">none</a></code></li>
 <li><code>(some 4).<a href="../../.././Init/Data/Option/Basic.html#Option.bind">bind</a> (fun x =&gt; <a href="../../.././Init/Data/Option/Basic.html#Option.Rel.some">some</a> x) = <a href="../../.././Init/Data/Option/Basic.html#Option.Rel.some">some</a> 4</code></li>
