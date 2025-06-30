@@ -17,14 +17,7 @@
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc-data/references.json",
    "11893762902049086281"],
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
-<<<<<<< HEAD
    "6275124044804967828"],
   ["Mathlib.Topology.UniformSpace.CompactConvergence:leanArts",
    "4457939243388819331"]],
  "depHash": "4646110073604539274"}
-=======
-   "5744110298908036798"],
-  ["Mathlib.Topology.UniformSpace.CompactConvergence:leanArts",
-   "4457939243388819331"]],
- "depHash": "8015676678038565745"}
->>>>>>> 77f06c7f (readme2)

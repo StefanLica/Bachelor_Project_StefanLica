@@ -11,12 +11,6 @@
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc-data/references.json",
    "11893762902049086281"],
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
-<<<<<<< HEAD
    "6275124044804967828"],
   ["Mathlib.Algebra.Polynomial.Reverse:leanArts", "13410759544830818575"]],
  "depHash": "3569095588251320044"}
-=======
-   "5744110298908036798"],
-  ["Mathlib.Algebra.Polynomial.Reverse:leanArts", "13410759544830818575"]],
- "depHash": "6532588775463058703"}
->>>>>>> 77f06c7f (readme2)

@@ -9,12 +9,6 @@
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc-data/references.json",
    "11893762902049086281"],
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
-<<<<<<< HEAD
    "6275124044804967828"],
   ["Batteries.Tactic.Lint.TypeClass:leanArts", "4130871549232329832"]],
  "depHash": "18438628182873944646"}
-=======
-   "5744110298908036798"],
-  ["Batteries.Tactic.Lint.TypeClass:leanArts", "4130871549232329832"]],
- "depHash": "12175833364374297693"}
->>>>>>> 77f06c7f (readme2)
