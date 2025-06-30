@@ -10,11 +10,10 @@ open Polynomial
 # A version over the rationals
 
 * In this file, we prove a seemingly stronger result, namely that the abc-conjecture implies that
-for any polynomial P ∈ ℚ[X] of degree at least 2, the equation P(x) = n! has finitely many rational
-solutions x and finitely many integer solutions n. This problem can be reduced to the simpler case,
-proven in `abc_Z_poly_eq_fac_fin_sol`.
+for any polynomial P ∈ ℚ[X] of degree at least 2, the equation P(x) = n! has finitely many solutions
+(x,n) ∈ ℚ × ℕ. This problem can be reduced to the integer case, `abc_Z_poly_eq_fac_fin_sol`.
 * We first prove a helping statement, namely for all polynomials P ∈ ℤ[X] of degree at least 2,
-and for all non-zero c ∈ ℤ, the equation P(x) = c * n! has finitely many integer solutions x and n.
+and for all non-zero c ∈ ℤ, the equation P(x) = c * n! has finitely many solutions (x,n) ∈ ℤ × ℕ.
 -/
 
 
@@ -128,10 +127,9 @@ lemma Qc_id {P Q Qc : ℤ[X]} {d n : ℕ} {x c z : ℤ} (hcne0 : c ≠ 0) (hz : 
 /-!
 ## Main statements
 
-
 * `abc_Z_poly_eq_fac_fin_sol_rat` is the main statement of this file.
 * `abc_Z_poly_eq_const_fac_fin_sol`: for all polynomials P ∈ ℤ[X] of degree at least 2,
-and for all non-zero c ∈ ℤ, the equation P(x) = c * n! has finitely many integer solutions x and n,
+and for all non-zero c ∈ ℤ, the equation P(x) = c * n! has finitely many solutions (x,n) ∈ ℤ × ℕ,
 under the abc-conjecture.
 -/
 

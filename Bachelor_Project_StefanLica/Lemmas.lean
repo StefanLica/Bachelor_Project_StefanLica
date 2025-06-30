@@ -20,17 +20,16 @@ open Real
 
 * This file consists of most of the 'basic' lemmas used for proving the theorems.
 * None of the lemmas proven in this file depend on the abc-conjecture.
-* The radical of a natural number, `rad`, is defined as the product of prime factors.
 -/
 
 
 
 /-- The radical of a natural number, defined as the product of its prime factors.-/
-def rad (a : ℕ) : ℕ := a.primeFactors.prod id
+def rad (n : ℕ) : ℕ := n.primeFactors.prod id
 
 
 /-!
-## Basic lemmas about the radical of a natural number, divisibility and casting.
+## Basic lemmas about the radical of a natural number, divisibility and type coercion.
 -/
 
 
@@ -839,14 +838,7 @@ lemma rad_helper (x : ℕ) (hx : x ≠ 0) : (rad x).primeFactors = x.primeFactor
   exact (Nat.mem_primeFactors_of_ne_zero h_rad_ne_0).2 (And.intro h_prime hp_div)
 
 
-lemma rad_eq_x (x : ℕ) (hx : x ≠ 0) : rad (rad x) = rad x := by
-  have h_rad_ne_0 : rad x ≠ 0 := by
-    unfold rad
-    rw [Finset.prod_ne_zero_iff]
-    aesop
-  have h_pf_eq : (rad x).primeFactors = x.primeFactors := by apply rad_helper x hx
-  have hu : ∀ t ∈ x.primeFactors, id t = id t := by aesop
-  apply Finset.prod_congr h_pf_eq hu
+lemma rad_eq_x (x : ℕ) (hx : x ≠ 0) : rad (rad x) = rad x := by exact Finset.prod_congr (rad_helper x hx) (by simp)
 
 
 lemma rad_primorial_eq_primorial (x: ℕ) : rad (primorial x) = primorial x := by
