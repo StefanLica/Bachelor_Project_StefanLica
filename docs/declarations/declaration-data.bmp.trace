@@ -5,6 +5,7 @@
    "level": "trace"}],
  "inputs":
  [["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+<<<<<<< HEAD
    "6275124044804967828"],
   ["<nil>", "14590866244655749218"],
   ["<collection>",
@@ -21,3 +22,21 @@
     ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica.html",
      "3246743754773329625"]]]],
  "depHash": "14981585913319344486"}
+=======
+   "5744110298908036798"],
+  ["<nil>", "14590866244655749218"],
+  ["<collection>",
+   [["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/Lemmas.html",
+     "1485063528153026488"],
+    ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/abc_variants.html",
+     "5634932979778963979"],
+    ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/weak_abc_imp_Brocard_problem.html",
+     "2694402213567202158"],
+    ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/abc_Z_imp_general_Brocard.html",
+     "10399543180837103056"],
+    ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica/version_over_rationals.html",
+     "14222462863401061883"],
+    ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc/Bachelor_Project_StefanLica.html",
+     "16761156511224444757"]]]],
+ "depHash": "8825928209939478148"}
+>>>>>>> 77f06c7f (readme2)

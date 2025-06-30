@@ -15,6 +15,12 @@
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc-data/references.json",
    "11893762902049086281"],
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+<<<<<<< HEAD
    "6275124044804967828"],
   ["Aesop.Index.Basic:leanArts", "18053081534267239403"]],
  "depHash": "13265413812545148677"}
+=======
+   "5744110298908036798"],
+  ["Aesop.Index.Basic:leanArts", "18053081534267239403"]],
+ "depHash": "6105723345126427326"}
+>>>>>>> 77f06c7f (readme2)

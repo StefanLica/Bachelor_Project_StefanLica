@@ -11,7 +11,14 @@
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc-data/references.json",
    "11893762902049086281"],
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+<<<<<<< HEAD
    "6275124044804967828"],
   ["Mathlib.Combinatorics.Enumerative.Partition:leanArts",
    "9571810010660114036"]],
  "depHash": "11410516575308924966"}
+=======
+   "5744110298908036798"],
+  ["Mathlib.Combinatorics.Enumerative.Partition:leanArts",
+   "9571810010660114036"]],
+ "depHash": "3990513643000093205"}
+>>>>>>> 77f06c7f (readme2)

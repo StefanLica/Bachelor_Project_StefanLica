@@ -9,6 +9,12 @@
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/docbuild/.lake/build/doc-data/references.json",
    "11893762902049086281"],
   ["/home/runner/work/Bachelor_Project_StefanLica/Bachelor_Project_StefanLica/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+<<<<<<< HEAD
    "6275124044804967828"],
   ["Mathlib.Data.List.Nodup:leanArts", "7164856231816577049"]],
  "depHash": "1888473300286324227"}
+=======
+   "5744110298908036798"],
+  ["Mathlib.Data.List.Nodup:leanArts", "7164856231816577049"]],
+ "depHash": "11277219377740414232"}
+>>>>>>> 77f06c7f (readme2)
